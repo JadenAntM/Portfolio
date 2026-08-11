@@ -1,0 +1,66 @@
+# How to use this file
+Save this content as `.cursorrules` in your repo root, OR as `.cursor/rules/portfolio.mdc` (Cursor will pick either up automatically). Every Agent task in this repo will then inherit this context without you re-pasting it.
+
+---
+
+## Project
+Personal portfolio for **Jaden Moore**, a 4th-year software engineering student targeting technical recruiters, senior engineering leads, and quantitative technology hiring managers for internships/new-grad roles. Single-page scroll site. Goal: read as deep technical competence and engineering rigor — the opposite of a generic AI-template site.
+
+## Tech stack (do not deviate without asking)
+- Next.js (App Router)
+- Tailwind CSS
+- Framer Motion
+- Lenis (site-wide smooth-scroll source, synchronized through Framer Motion's frame loop)
+- Hosting target: Vercel
+
+## Design tokens
+- **Background:** near-black, `#0A0A0A`
+- **Border/structure:** `neutral-800` (`#262626`)
+- **Text:** off-white, `#F2F2ED` (not pure white — slightly warm to avoid stark AI-default contrast)
+- **Accent:** the exact muted signal green `#5EEAA0` (never substitute a brighter or more saturated green). Its deliberate uses are status dots, the 1px page-progress line, active-nav underlines, heading-wipe edges, hover borders, and ≤13px mono sequence numbers. It must never become a large fill, gradient stop, text color for prose/headings, or any shadow/glow/blur. The page should still read as monochrome first, signal green second.
+- The palette is **two colors and four greys**, full stop, except for small user-supplied company marks in Work Experience: preserve their official artwork in contained logo frames rather than recoloring it. A `signal-red` token existed for the unified-diff `-` gutter; the diff lived in the case studies, and when those were removed the token was deleted with them. Do not reintroduce a third hue into the site UI.
+- **Headings/structure:** Geist or Inter
+- **Metadata, metrics, tags, code:** JetBrains Mono
+- **Weights:** 400 and 500 only, with one exception — the hero marquee uses 800. Do not spread the heavy weight to other display type; it earns its place by being the only thing at that scale.
+
+## Layout & structure rules
+- Asymmetric grid with visible 1px `neutral-800` borders — the grid itself is a structural/visual element, not just a container
+- Numbered section markers (`01/02/03`) are allowed ONLY because the sections, the experience blocks and the project slots are genuinely sequential — do not add numbering elsewhere decoratively
+- The hero marquee is the one element permitted to break the grid: its rows are full-bleed and cross the vertical hairlines. Everything else sits inside a track
+- No centered-hero-with-big-stat-and-gradient-accent template
+- No `rounded-2xl` cards with soft drop shadows / glassmorphism — this is a hard-edged, blueprint/editorial aesthetic, not a SaaS-landing-page aesthetic
+
+## Explicitly avoid (generic AI-template tells)
+- Gradient blobs or mesh gradients as background decoration
+- Glassmorphism / frosted-glass panels
+- Soft glowing box-shadows on cards or buttons
+- Overly rounded corners as a default (prefer sharp or minimally rounded, 2–4px max)
+- Emoji in UI copy or headings
+- Evenly-distributed scroll animations on every element — motion should be purposeful and concentrated (see Motion below), not sprinkled everywhere
+- Filler/marketing adjectives in copy ("passionate", "innovative", "cutting-edge") — tone is direct, objective, technical
+
+## Content sections (in this order)
+1. **Hero** — name, title, 4th-year status; 2–3 sentence direct positioning statement; live status indicator styled as system state (e.g. `STATUS: OPEN_TO_WORK · NEW_GRAD_2027`) with the green accent dot; resume download CTA (primary) + GitHub/LinkedIn (secondary). Below the identity block, a **3-row full-bleed marquee**: row 1 the title, rows 2–3 the stack split in half. Rows alternate direction (`+ - +`), each runs at its own px/sec speed, and the loop is seamless because the content is repeated enough times to cover the viewport plus one wrap distance
+2. **Work Experience** — one block per company (RBC Capital Markets, TFI International), reverse chronological. User-supplied company marks may replace monograms and retain their official color, contained in small bordered frames; do not extend their palettes into the surrounding UI. Each block has role, dates, stack tags, and 3–4 quantified bullets. Blocks hand off to each other on a scroll-linked stage, not an on-enter reveal
+3. **Projects** — array-driven cards: name, one-line description, image, stack tags, link. Same scroll-linked stage as Work Experience, so the two sections read as one continuous scroll. Placeholder images come from `placehold.co` with this site's own hex values in the URL — never a scraped or stock image
+4. **Contact** — obfuscated email, LinkedIn, GitHub, resume download (fallback CTA). Short and direct — no manifesto-style paragraph here
+
+## Motion rules
+- Minimal and purposeful only: continuous motion stays concentrated in the hero marquee and Work/Projects stage; one-shot mask wipes are limited to section headings
+- Lenis owns site-wide scroll interpolation and is advanced through Framer Motion's frame loop. All continuous scroll-linked MotionValues (hero exit, stages, nav/readout, progress line) derive from Lenis's emitted scroll value rather than separate raw-window `useScroll` sources
+- Scroll-driven stage motion remains scroll-*linked* (`useTransform`), so scrubbing back up reverses the handoff and stopping mid-way holds its state. Stage translation and scale pass through Framer `useSpring` with a responsive, well-damped config; opacity stays deterministic to prevent prolonged block overlap
+- Section headings use a deliberate 0.75s, once-only `whileInView` neutral-panel wipe with a 1px accent edge. Do not spread this reveal to paragraphs, cards, bullets, or tags
+- ASCII arrow (`→`) hover states on links/CTAs
+- Text-scramble effect on contact link hover
+- Border color shift (`neutral-800` → accent green) on component hover
+- Respect `prefers-reduced-motion` for all of the above. Disable Lenis interpolation and heading masks, freeze marquee rows, and abandon the pinned stage for a normal-flow list
+
+## Non-negotiable quality floor
+- Fully responsive down to mobile (this is not optional polish, build it in from the start of each component)
+- Visible keyboard focus states on every interactive element
+- Semantic HTML and proper heading hierarchy
+- Every experience block and project card driven by a typed data structure (array of objects), not hardcoded JSX per item
+- Nothing that can be clipped by a pinned viewport may be the only copy of a piece of content — if a scroll stage cannot fit an item at a given width, fall back to normal flow at that width
+
+## Before considering any visual work "done"
+Check it against the "Explicitly avoid" list above. If it could be mistaken for a default Tailwind/shadcn template or a generic dark-mode SaaS site, revise it.
