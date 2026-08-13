@@ -1,27 +1,26 @@
 import type { Metadata } from "next";
 import { SmoothScrollProvider } from "@/components/SmoothScrollProvider";
 import { PROFILE } from "@/data/profile";
+import { getCanonicalOrigin } from "@/lib/site";
 import { mono, sans } from "./fonts";
 import "lenis/dist/lenis.css";
 import "./globals.css";
 
-/**
- * TODO(jaden): set the real domain (or NEXT_PUBLIC_SITE_URL in Vercel) before
- * deploy — Open Graph image URLs must be absolute, and this is what makes them
- * absolute.
- */
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://example.com";
-
 const TITLE = `${PROFILE.name} — ${PROFILE.discipline}`;
 const DESCRIPTION =
-  "Fourth-year software engineering student working on backend systems and data infrastructure: streaming ingest, validation, and observability. Case studies with measured outcomes.";
+  "Fourth-year software engineering student building internal tools and data workflows, from Python automation and ETL pipelines to full-stack support platforms.";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
+  metadataBase: getCanonicalOrigin(),
   title: TITLE,
   description: DESCRIPTION,
   applicationName: TITLE,
   authors: [{ name: PROFILE.name }],
+  icons: {
+    icon: "/JFavicon.png",
+    shortcut: "/JFavicon.png",
+    apple: "/JFavicon.png",
+  },
   keywords: [
     "software engineering",
     "data pipelines",
@@ -35,7 +34,7 @@ export const metadata: Metadata = {
     title: TITLE,
     description: DESCRIPTION,
     siteName: TITLE,
-    url: SITE_URL,
+    url: "/",
     locale: "en_CA",
   },
   twitter: {

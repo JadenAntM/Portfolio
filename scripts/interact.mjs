@@ -213,18 +213,18 @@ check(
     .join(" "),
 );
 
-/* -- 2b. the scroll stage engages past the narrow fallback ---------------- */
+/* -- 2b. the Work stage engages past the narrow fallback ----------------- */
 const pinned = await page.evaluate(
   () => document.querySelectorAll(".stage-pin").length,
 );
-check("stage: pinned at desktop width", pinned === 2, `${pinned} pinned stages`);
+check("stage: Work is pinned at desktop width", pinned === 1, `${pinned} pinned stage`);
 
 /* -- 2c. stage handoffs: no visual stacking, every item reached ----------- */
 /**
- * Sweep the full progress range for both stages. This intentionally reads the
+ * Sweep the full progress range for the Work stage. This intentionally reads the
  * rendered styles instead of duplicating ScrollStage's range arithmetic, so a
- * future change cannot reintroduce overlap only for the longer experience or
- * project blocks without failing the check.
+ * future change cannot reintroduce overlap for longer experience blocks
+ * without failing the check.
  */
 const stageHandoffs = await page.evaluate(async () => {
   const nextFrame = () => new Promise((resolve) => requestAnimationFrame(resolve));
@@ -266,7 +266,7 @@ const stageHandoffs = await page.evaluate(async () => {
 
 check(
   "stage: all entries resolve individually with no visual overlap",
-  stageHandoffs.length === 2 &&
+  stageHandoffs.length === 1 &&
     stageHandoffs.every(
       (stage) => stage.overlapCount === 0 && stage.fullyVisible === stage.items,
     ),
@@ -275,7 +275,62 @@ check(
     .join(" · "),
 );
 
-/* -- 2d. Lenis source, page progress, and heading masks ------------------- */
+/* -- 2d. Projects maps its vertical range onto the horizontal rail -------- */
+const projectRail = await page.evaluate(async () => {
+  const nextFrame = () => new Promise((resolve) => requestAnimationFrame(resolve));
+  const track = document.querySelector("[data-project-rail]");
+  const pin = document.querySelector(".project-rail-pin");
+  const cards = [...document.querySelectorAll("[data-project-carriage]")];
+  if (!track || !pin || cards.length === 0) return null;
+
+  const top = track.getBoundingClientRect().top + window.scrollY;
+  const span = track.getBoundingClientRect().height - window.innerHeight;
+  const readCentered = () => {
+    const center = window.innerWidth / 2;
+    return cards.map((card) => {
+      const rect = card.getBoundingClientRect();
+      return Math.abs(rect.left + rect.width / 2 - center);
+    });
+  };
+
+  window.scrollTo({ top, behavior: "instant" });
+  await nextFrame();
+  await nextFrame();
+  const start = readCentered();
+
+  window.scrollTo({ top: top + span, behavior: "instant" });
+  await nextFrame();
+  await nextFrame();
+  const end = readCentered();
+  const index = document.querySelector("[data-project-index]")?.textContent?.trim();
+  const projectLinkTabs = cards.map((card) => card.querySelector("a")?.tabIndex);
+
+  window.scrollTo({ top: 0, behavior: "instant" });
+  return {
+    cards: cards.length,
+    trackViewports: track.getBoundingClientRect().height / window.innerHeight,
+    pinViewports: pin.getBoundingClientRect().height / window.innerHeight,
+    firstDelta: start[0],
+    lastDelta: end[end.length - 1],
+    index,
+    projectLinkTabs,
+  };
+});
+
+check(
+  "projects: one-viewport pin centers first and last rail cards",
+  projectRail &&
+    projectRail.cards === 2 &&
+    Math.abs(projectRail.trackViewports - projectRail.cards) < 0.05 &&
+    Math.abs(projectRail.pinViewports - 1) < 0.05 &&
+    projectRail.firstDelta < 2 &&
+    projectRail.lastDelta < 2 &&
+    projectRail.index === "02/02" &&
+    projectRail.projectLinkTabs.join(",") === "-1,0",
+  projectRail ? JSON.stringify(projectRail) : "rail missing",
+);
+
+/* -- 2e. Lenis source, page progress, and heading masks ------------------- */
 const scrollEnhancements = await page.evaluate(async () => {
   const nextFrame = () => new Promise((resolve) => requestAnimationFrame(resolve));
   const masks = [...document.querySelectorAll("[data-heading-mask]")];
@@ -316,12 +371,40 @@ check(
   `lenis=${scrollEnhancements.lenis}, progress=${scrollEnhancements.progressScale.toFixed(2)}`,
 );
 check(
-  "headings: all 3 section masks wipe clear",
-  scrollEnhancements.masks === 3 && scrollEnhancements.masksRevealed,
+  "headings: all 4 section masks wipe clear",
+  scrollEnhancements.masks === 4 && scrollEnhancements.masksRevealed,
   `${scrollEnhancements.masks} masks, revealed=${scrollEnhancements.masksRevealed}`,
 );
 
-/* -- 3. keyboard focus is visible ----------------------------------------- */
+/* -- 3a. Mobile Projects is native horizontal scroll snap ---------------- */
+{
+  const mobilePage = await browser.newPage();
+  await mobilePage.setViewport({ width: 390, height: 844 });
+  await mobilePage.goto(url, { waitUntil: "networkidle0" });
+  const mobileProjects = await mobilePage.evaluate(() => {
+    const list = document.querySelector(".project-native-scroll");
+    return {
+      pin: document.querySelectorAll("[data-project-rail]").length,
+      list: list ? 1 : 0,
+      snap: list ? getComputedStyle(list).scrollSnapType : "none",
+      cards: document.querySelectorAll("#projects [data-project-carriage]").length,
+      labelled: list?.getAttribute("aria-label") === "Project gallery",
+    };
+  });
+
+  check(
+    "projects: mobile uses labelled native horizontal scroll snap",
+    mobileProjects.pin === 0 &&
+      mobileProjects.list === 1 &&
+      mobileProjects.snap.startsWith("x") &&
+      mobileProjects.cards === 2 &&
+      mobileProjects.labelled,
+    JSON.stringify(mobileProjects),
+  );
+  await mobilePage.close();
+}
+
+/* -- 3b. keyboard focus is visible ---------------------------------------- */
 /**
  * Tabbed for real rather than calling .focus(): programmatic focus does not
  * match :focus-visible in Chrome, so an earlier version of this check was
@@ -364,7 +447,7 @@ check(
     : "no focusable elements reached",
 );
 
-/* -- 4. reduced motion: marquee frozen, stages in normal flow ------------- */
+/* -- 4. reduced motion: marquee frozen, motion sections in normal flow ---- */
 {
   const rmPage = await browser.newPage();
   await rmPage.setViewport({ width: 1440, height: 900 });
@@ -399,7 +482,9 @@ check(
   const fallback = await rmPage.evaluate(() => {
     const items = [...document.querySelectorAll("#experience h3, #projects h3")];
     return {
-      pins: document.querySelectorAll(".stage-pin").length,
+      pins: document.querySelectorAll(".stage-pin, .project-rail-pin").length,
+      projectRail: document.querySelectorAll("[data-project-rail]").length,
+      nativeProjectList: document.querySelectorAll(".project-native-scroll").length,
       items: items.length,
       masks: document.querySelectorAll("[data-heading-mask]").length,
       allOpaque: items.every((el) => {
@@ -412,8 +497,10 @@ check(
   });
 
   check(
-    "reduced motion: stages fall back to normal flow, all items visible",
+    "reduced motion: motion sections fall back to normal flow, all items visible",
     fallback.pins === 0 &&
+      fallback.projectRail === 0 &&
+      fallback.nativeProjectList === 1 &&
       fallback.items === 4 &&
       fallback.masks === 0 &&
       fallback.allOpaque,

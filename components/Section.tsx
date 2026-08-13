@@ -19,7 +19,7 @@ interface SectionProps {
  * span. See PLAN.md §3.
  *
  * Sections contain one or more `GridRow`s rather than laying out tracks
- * themselves, so a section like Case Studies can give every card its own
+ * themselves, so a section like Projects can give each row its own
  * narrative/spec split instead of sharing one spec column.
  */
 export function Section({ id, children, first = false, className }: SectionProps) {

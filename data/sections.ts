@@ -13,7 +13,8 @@ export const SECTIONS: SectionMeta[] = [
   { id: "index", index: null, label: "Index", railLabel: "IDX" },
   { id: "experience", index: "01", label: "Work Experience", railLabel: "WORK" },
   { id: "projects", index: "02", label: "Projects", railLabel: "PROJ" },
-  { id: "contact", index: "03", label: "Contact", railLabel: "CONTACT" },
+  { id: "education", index: "03", label: "Education", railLabel: "EDU" },
+  { id: "contact", index: "04", label: "Contact", railLabel: "CONTACT" },
 ];
 
 export const NAV_SECTIONS = SECTIONS.filter(

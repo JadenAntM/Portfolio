@@ -18,11 +18,8 @@ export const PROFILE = {
   /** Row 1 of the hero marquee. The role, not the field of study. */
   title: "Software Engineer",
 
-  status: {
-    state: "OPEN_TO_WORK",
-    // TODO(jaden): confirm graduation term.
-    cohort: "NEW_GRAD_2027",
-  },
+  // TODO(jaden): confirm graduation term.
+  cohort: "NEW_GRAD_2027",
 
   /**
    * Three sentences, no adjective that cannot be measured. See the copy rule in
@@ -30,9 +27,9 @@ export const PROFILE = {
    * TODO(jaden): rewrite in your own words — this is scaffolding, not your voice.
    */
   positioning: [
-    "I build backend systems and data infrastructure: streaming ingest, validation, and the tooling that makes both observable.",
+    "I build internal tools and data workflows that reduce operational work—from Python automation and ETL pipelines to full-stack support platforms.",
     "Previously at RBC Capital Markets and TFI International, working on internal platform and pipeline code.",
-    "Currently looking for a new-grad role in systems or quantitative technology.",
+    "Currently looking for a new-grad role in full-stack software engineering or data engineering.",
   ],
 
   /** Resume skills, split across rows 2 and 3 by the Hero. */
@@ -77,12 +74,11 @@ export const PROFILE_LINKS = {
  * nowhere in the served HTML for a scraper to lift. This is obfuscation, not
  * security — it defeats naive harvesters, nothing more.
  *
- * TODO(jaden): replace with your address:
- *   node -e "console.log(btoa('you'), btoa('domain.com'))"
+ * Generated from the real address; keep the two decoded halves out of source.
  */
 export const EMAIL_PARTS = {
-  user: "Zmlyc3QubGFzdA==",
-  domain: "ZXhhbXBsZS5jb20=",
+  user: "amFkZW4uYXkubW9vcmU=",
+  domain: "Z21haWwuY29t",
 } as const;
 
 export const SOCIAL_LINKS: ProfileLink[] = [

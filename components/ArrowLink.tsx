@@ -9,6 +9,7 @@ interface ArrowLinkProps {
   download?: boolean;
   className?: string;
   icon?: string;
+  tabIndex?: number;
   /** Glyph override — the resume CTA uses a download arrow instead. */
   glyph?: string;
 }
@@ -25,11 +26,13 @@ export function ArrowLink({
   download = false,
   className,
   icon,
+  tabIndex,
   glyph = "→",
 }: ArrowLinkProps) {
   return (
     <a
       href={href}
+      tabIndex={tabIndex}
       download={download || undefined}
       {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
       className={cn(

@@ -81,7 +81,6 @@ export default async function OpengraphImage() {
         <div
           style={{
             display: "flex",
-            alignItems: "center",
             marginTop: 56,
             fontSize: 22,
             fontFamily: "Geist Mono",
@@ -89,16 +88,7 @@ export default async function OpengraphImage() {
             letterSpacing: "0.08em",
           }}
         >
-          <div
-            style={{
-              width: 10,
-              height: 10,
-              borderRadius: 5,
-              backgroundColor: "#5EEAA0",
-              marginRight: 16,
-            }}
-          />
-          STATUS: {PROFILE.status.state} · {PROFILE.status.cohort}
+          {PROFILE.cohort}
         </div>
       </div>
     ),

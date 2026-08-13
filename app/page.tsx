@@ -1,4 +1,5 @@
 import { Contact } from "@/components/Contact";
+import { Education } from "@/components/Education";
 import { Hero } from "@/components/Hero";
 import { NavChrome, NavRail } from "@/components/Nav";
 import { Projects } from "@/components/Projects";
@@ -12,6 +13,7 @@ export default function Page() {
         <Hero />
         <WorkExperience />
         <Projects />
+        <Education />
         <Contact />
       </main>
     </Shell>

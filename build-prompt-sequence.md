@@ -9,7 +9,7 @@ Paste these into Cursor Agent Mode one at a time, in order. Review the diff afte
 Before writing any code, produce a design plan for this portfolio and output it as PLAN.md. Include:
 1. Final exact hex values for background, border, text, and accent (confirm or refine the tokens in .cursorrules — you may adjust the accent green's exact shade if you find a more distinctive option, but stay in the muted/desaturated family, not stock acid-green).
 2. The specific type pairing you'll use for headings vs. body vs. metadata, with weights and a type scale (sizes for h1/h2/h3/body/caption).
-3. A one-paragraph description of the layout concept for the asymmetric grid, plus an ASCII wireframe of the hero and one case study card.
+3. A one-paragraph description of the layout concept for the asymmetric grid, plus an ASCII wireframe of the hero and one project card.
 4. Name ONE signature element — the single most memorable, distinctive visual/interaction moment on this site — and explain how it embodies "technical engineering rigor" specifically (not a generic creative-portfolio flourish).
 5. A short self-critique: review your own plan against the "Explicitly avoid" list in .cursorrules and confirm nothing in your plan matches those generic-AI-template patterns. If something does, revise it before finalizing.
 Do not write any component code yet — output PLAN.md only and stop.
@@ -30,14 +30,14 @@ Build the fixed numbered navigation component (01 Work / 02 Experience / 03 Cont
 Build the Hero section per the content spec in .cursorrules: name/title/status line, 2-3 sentence positioning statement, the live status indicator with the green accent dot, resume download CTA (primary) plus GitHub/LinkedIn (secondary), and the cycling stack-tags text component using Framer Motion's AnimatePresence with a y-transform/opacity swap looping every 1.5-2s (respect prefers-reduced-motion by freezing on the first tag). Use placeholder resume/GitHub/LinkedIn links marked clearly as TODO. Build it as components/Hero.tsx, fully responsive, matching the layout concept and signature element from PLAN.md.
 ```
 
-### PROMPT 5 — Engineering Case Studies
+### PROMPT 5 — Projects rail
 ```
-Build the Case Studies section as an array-driven component. First create data/case-studies.ts with a typed CaseStudy interface (indexTag, name, problemStatement, role, stack: string[], outcomes: string[], links: {code?, demo?, writeup?}) and populate it with 2 real placeholder entries — one for a hydrometric data pipeline dashboard project, one for an enterprise engineering project — using realistic placeholder metrics I'll replace later. Then build components/CaseStudyCard.tsx and the section that maps over the data array. Include the blueprint-style architecture diagram placeholder (SVG, monochrome + accent green lines) per card, the border color shift on hover, and the ASCII arrow (→) hover state on the links. Fully responsive.
+Build the Projects section as an array-driven horizontal rail. Create typed project data with name, description, image, stack, and link fields. On tablet/desktop, pin one viewport and map vertical scroll progress to the horizontal position of wide cards suspended from a single hairline rail by short vertical connectors. Use native horizontal scroll snap on mobile and for reduced motion. Include the restrained border-color hover and ASCII arrow (→) link state. Fully responsive.
 ```
 
 ### PROMPT 6 — Experience / Stack data table
 ```
-Build the Experience section as a command-line-style data table per .cursorrules: columns Company | Role | Dates | Stack | Impact. Create data/experience.ts with a typed array and populate two rows for RBC Capital Markets and TFI International with realistic placeholder details I'll replace later, reverse chronological. Render in JetBrains Mono with the neutral-800 border grid and the same hover border-shift pattern as the case study cards. Make the table degrade gracefully on mobile (stacked/card layout below sm, not horizontal scroll).
+Build the Experience section as a command-line-style data table per .cursorrules: columns Company | Role | Dates | Stack | Impact. Create data/experience.ts with a typed array and populate two rows for RBC Capital Markets and TFI International with realistic placeholder details I'll replace later, reverse chronological. Render in JetBrains Mono with the neutral-800 border grid and the same hover border-shift pattern as the project cards. Make the table degrade gracefully on mobile (stacked/card layout below sm, not horizontal scroll).
 ```
 
 ### PROMPT 7 — Contact section

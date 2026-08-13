@@ -27,8 +27,8 @@ npm run verify -- --url=http://localhost:3000
 - **`shoot`** screenshots `.screenshots/` at 390 / 480 / 820 / 1440 / 1700px and fails on any
   horizontal overflow or element escaping the viewport. Useful flags: `--scroll=<section-id>`,
   `--offset=<px>`, `--reduced`, `--full`.
-- **`verify`** exercises the text-scramble, the marquee's direction/speed/seam arithmetic, the scroll
-  stage's pinned and normal-flow modes, real keyboard tab focus, the reduced-motion fallbacks, and
+- **`verify`** exercises the text-scramble, the marquee's direction/speed/seam arithmetic, the Work
+  stage and Projects rail modes, real keyboard tab focus, the reduced-motion fallbacks, and
   measures contrast for every rendered text style at three viewports against WCAG AA.
 
 These caught real defects during the build — see `PLAN.md` §6 and §7. Re-run them after any visual
@@ -61,12 +61,13 @@ components/
   Section.tsx     one section: main track + spec column
   SpecBlock.tsx   repeated unit of the spec column
   HeroMarquee.tsx 3-row full-bleed marquee (the signature element)
-  ScrollStage.tsx scroll-linked pinned stack, shared by Experience + Projects
+  ScrollStage.tsx scroll-linked pinned stack for Experience
+  Projects.tsx    vertical-to-horizontal project rail + native touch fallback
 data/             typed content arrays (sections, profile, experience, projects)
 lib/              helpers
 ```
 
-Sections, in order: **Hero → Work Experience → Projects → Contact**.
+Sections, in order: **Hero → Work Experience → Projects → Education → Contact**.
 
 ### Design tokens are enforced, not documented
 

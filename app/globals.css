@@ -44,10 +44,9 @@
 
   --color-accent: #5eeaa0;
   --color-accent-dim: #3e7f58;
-  /* PLAN.md §1 also specified `signal-red` at #D37769, scoped to the
-     unified-diff `-` gutter. The diff lived inside the case studies, and those
-     were removed, so the token went with them rather than staying as the one
-     unused color in the palette. */
+  /* PLAN.md §1 also specified `signal-red` for an older project diff. That
+     treatment was removed, so the token went with it rather than staying as
+     the one unused color in the palette. */
 
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
@@ -140,9 +139,28 @@
   }
 
   body {
+    isolation: isolate;
     font-family: var(--font-sans);
     font-size: var(--text-body);
     line-height: var(--text-body--line-height);
+  }
+
+  /* A pre-rendered, seamless noise tile adds material depth without asking the
+     browser to recalculate an SVG filter during scroll. This layer sits above
+     the flat page background and structural rules, but below the z-10 content
+     sheet and every interactive control. */
+  body::before {
+    content: "";
+    position: fixed;
+    z-index: 1;
+    inset: 0;
+    pointer-events: none;
+    background-image: url("/textures/noise.png");
+    background-repeat: repeat;
+    mix-blend-mode: soft-light;
+    /* Near-black suppresses soft-light strongly; 10% here resolves to only a
+       0–4 RGB-level variation in the final composite. */
+    opacity: 0.1;
   }
 
   ::selection {
@@ -280,6 +298,59 @@
     top: 0;
     height: calc(100dvh - var(--rail-bar-h));
     overflow: hidden;
+  }
+
+  .project-rail-header {
+    padding-block: 2.25rem 1.5rem;
+  }
+
+  .project-rail-pin {
+    position: sticky;
+    top: var(--rail-strip-h);
+    height: calc(100dvh - var(--rail-strip-h));
+  }
+
+  .project-carriage {
+    width: 76vw;
+  }
+
+  .project-card {
+    height: min(55dvh, 34rem);
+    grid-template-rows: minmax(0, 0.92fr) minmax(0, 1.08fr);
+  }
+
+  .project-native-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border-hi) transparent;
+    scroll-snap-type: x mandatory;
+  }
+
+  @media (min-width: 48rem) {
+    .project-card {
+      grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+      grid-template-rows: minmax(0, 1fr);
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .project-rail-pin {
+      top: 0;
+      height: 100dvh;
+    }
+  }
+
+  @media (max-width: 47.999rem) {
+    .project-rail-header {
+      padding-block: 3.5rem;
+    }
+
+    .project-carriage {
+      width: 86vw;
+    }
+
+    .project-card {
+      height: 36rem;
+    }
   }
 
   @media (min-width: 40rem) {

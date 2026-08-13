@@ -57,17 +57,8 @@ export function Hero() {
             {/* Short rule: structure, echoing the sheet hairlines at content scale. */}
             <hr className="mt-8 w-28 border-t border-border" />
 
-            <p className="mono mt-8 flex flex-wrap items-center gap-x-2 gap-y-1 text-label uppercase">
-              <span className="text-fg-tertiary">Status:</span>
-              <span className="inline-flex items-center gap-2 text-fg">
-                <span
-                  aria-hidden
-                  className="inline-block size-1.5 shrink-0 rounded-full bg-accent"
-                />
-                {PROFILE.status.state}
-              </span>
-              <span className="text-fg-tertiary">·</span>
-              <span className="text-fg-tertiary">{PROFILE.status.cohort}</span>
+            <p className="mono mt-8 text-label uppercase text-fg-tertiary">
+              {PROFILE.cohort}
             </p>
 
             <div className="mt-10 max-w-(--measure-lead) space-y-4">

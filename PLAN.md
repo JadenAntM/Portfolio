@@ -28,10 +28,15 @@ WCAG 2.1 relative-luminance formula.
 | `accent-dim` | `#3E7F58` | Accent at rest on hairlines (e.g. focus ring outer, pre-hover diagram accents). Not for text. | 4.13:1 |
 | `signal-red` | `#D37769` | **Only** for the diff `-` gutter sigil and its 2px left rule (§3, The Diff). Nothing else in the site uses it. | 6.23:1 |
 
+The flat `bg` token remains the only page color. A static 128px monochrome PNG
+tile sits above it at 10% opacity with `soft-light` blending to add visible but restrained
+material grain. The layer is fixed, non-interactive, and unanimated; no live SVG
+filter is evaluated during scrolling or resizing.
+
 ### On the accent — amended 2026-08-06
 
 Final accent is the exact user-approved **`#5EEAA0`**. Its expanded but still restrained roles are
-the status dot, 1px page-progress line, active-nav underline, heading-wipe edge, hover borders, and
+the 1px page-progress line, active-nav underline, heading-wipe edge, hover borders, and
 small mono sequence numbers. It remains prohibited for large fills, prose/headings, gradients,
 shadows, glows, and blur. The off-white text must remain the dominant high-contrast voice.
 
@@ -89,7 +94,7 @@ Base 16px, ratio ≈1.25, fluid via `clamp()` so there are no per-breakpoint fon
 |---|---|---|---|---|---|---|
 | `display` | h1 (name) | Geist 500 | `clamp(2.75rem, 7vw, 4.5rem)` 44→72px | 0.95 | −0.035em | — |
 | `h2` | section titles | Geist 500 | `clamp(1.75rem, 3.2vw, 2.5rem)` 28→40px | 1.05 | −0.02em | — |
-| `h3` | case study / row titles | Geist 500 | `clamp(1.25rem, 2vw, 1.5rem)` 20→24px | 1.15 | −0.015em | — |
+| `h3` | project / row titles | Geist 500 | `clamp(1.25rem, 2vw, 1.5rem)` 20→24px | 1.15 | −0.015em | — |
 | `lead` | hero positioning stmt | Geist 400 | `1.125rem` 18px | 1.55 | −0.005em | — |
 | `body` | prose | Geist 400 | `1rem` 16px | 1.6 | 0 | — |
 | `label` | section markers, rail keys, column heads | JB Mono 500 | `0.6875rem` 11px | 1.2 | +0.12em | uppercase |
@@ -116,7 +121,7 @@ not stop or restart at section edges. Sections are delimited instead by full-ble
 hairlines that run edge to edge and *cross* those verticals, producing visible intersections, so
 the whole page reads as one drafted sheet rather than a stack of independent cards. Content is
 never centered: hero copy sets flush to the main track's left edge at a 58ch measure, leaving
-deliberate open space at the right of that track, while case study cards break one column wider
+deliberate open space at the right of that track, while project cards break one column wider
 than the prose above them so successive blocks intentionally fail to align. Asymmetry comes from
 this consistent left-anchoring plus the 88/1fr/280 track ratio, not from decorative offsets.
 
@@ -136,9 +141,8 @@ never drops on mobile.
 mobile. Implemented as *below* instead: putting it above required either a DOM order with metadata
 before the narrative, or a CSS reorder that desynchronises visual and screen-reader order. Placing
 it after the narrative keeps DOM order identical to visual order at every breakpoint, which is
-worth more than the original ordering preference. The Hero is the one case where a spec item
-(`STATUS`) genuinely needs to be near the top on mobile, so Hero renders its status line inside
-the main track rather than relying on the spec slot.
+worth more than the original ordering preference. The Hero's quiet cohort marker stays in the
+main track so it remains adjacent to the identity block at every breakpoint.
 
 **Implementation note.** The two continuous verticals are drawn by a single viewport-fixed overlay
 (`GridRules` in `components/Shell.tsx`), not by borders on section elements. Being fixed, they are
@@ -158,7 +162,7 @@ are opaque, since real content scrolls beneath those.
 │          │                                                │                   │
 │  02      │  ────────────────────────────────              │                   │
 │  PROJ    │                                                │                   │
-│          │  STATUS: ● OPEN_TO_WORK · NEW_GRAD_2027        │                   │
+│          │  NEW_GRAD_2027                                 │                   │
 │  03      │                                                │                   │
 │  CONTACT │  Positioning sentence one, direct and          │                   │
 │          │  objective, 58ch measure.                      │                   │
@@ -175,8 +179,7 @@ YTHON  GO  KAFKA  PYTHON  GO  KAFKA  PYTHON  GO  KAFKA  PY    ← 34px/s
 ├───────────────────────────────────────────────────────────────────────────────┤
 ```
 
-Notes: the `●` status dot is the accent, 6px, `border-radius: full` (the single exception to the
-sharp-corner rule, because a square status LED reads as a bug). The resume CTA is a 1px `border`
+Notes: the cohort marker is quiet tertiary mono metadata with no system-status treatment. The resume CTA is a 1px `border`
 rectangle with `radius: 2px` that shifts to `accent` on hover — not a filled button. Secondary
 links are underline-less mono with the `→` sliding 3px on hover. `SECTION` and `SCROLL` are live
 values, computed from real scroll state, not decoration.
@@ -272,13 +275,13 @@ the server — so the pinned version is strictly an enhancement.
 
 ### What this section used to say, and why it changed
 
-The original signature was **The Trace**: each case study's architecture diagram executed once on
+The original signature was **The Trace**: each detailed project's architecture diagram executed once on
 scroll-into-view, a square packet walking the graph in topological order, edges switching from inert
 grey to signal green as it cleared them, node metrics resolving from `--.--` to their measured values
 as it arrived. It shipped and it worked.
 
-Round 2 removed the case studies section outright, which removed The Trace and its supporting
-unified-diff treatment with it, since both were case study body treatments and had nowhere else to
+Round 2 removed that detailed project format outright, which removed The Trace and its supporting
+unified-diff treatment with it, since both belonged to that project format and had nowhere else to
 live. That is worth stating plainly rather than quietly reformatting, because **the old §4 argued for
 The Trace by name against a marquee**:
 
@@ -293,7 +296,7 @@ without losing information — the title and the stack both exist as real text e
 of round 2 is: the site got a stronger first impression and a weaker centerpiece.
 
 The specific thing lost: a reviewer no longer sees a diagram that models a system as a graph with
-numbers attached to its stages. If the case studies come back, The Trace should come back with them,
+numbers attached to its stages. If detailed project write-ups return, The Trace should return with them,
 and it should be the signature again — the marquee is the better *opening* but the diagram was the
 better *argument*.
 
@@ -350,7 +353,7 @@ Line by line, honestly:
 | Gradient blobs / mesh gradients | **Clear.** Exactly one background value (`#0A0A0A`). `surface` `#111111` is a flat 1.05:1 inset, not a gradient. No `bg-gradient-*` utility will appear anywhere. |
 | Glassmorphism / frosted panels | **Clear.** No `backdrop-blur`, no translucency. The fixed rail and mobile nav bar sit on opaque `bg` with a 1px hairline — they read as a chassis edge, not glass. |
 | Soft glowing box-shadows | **Clear**, and enforced structurally: the Tailwind `boxShadow` scale is set to `none` in PROMPT 2 so glow is unavailable, not just avoided. |
-| Overly rounded corners | **Clear.** Radius scale reduced to `none` + `sm: 2px`. Only the 6px status dot is round, which I'm keeping deliberately — a square status LED reads as a rendering bug. |
+| Overly rounded corners | **Clear.** Radius scale reduced to `none` + `sm: 2px`; no decorative pills or circular status controls. |
 | Emoji in UI copy | **Clear.** Verified by scanning all source for non-ASCII: the complete set shipped is `→ ↓ · — –` plus the ASCII `+ - [ ] @@`. No emoji. (The planned `▸ ▼ ─ │ ●` were never needed — the grid draws its own rules, so box-drawing characters would have been redundant.) |
 | Evenly-distributed scroll animations | **Clear, and re-examined in round 2.** Round 2 added three scroll-driven behaviours, which is exactly the direction this item warns about — the defence is that they are *concentrated*, not distributed: two live in the hero and one is a single shared component used by two sections. Nothing animates per-paragraph, per-bullet or per-tag. The scroll-reveal scope is still section headers only. |
 | Filler / marketing adjectives | **Clear.** Copy rules: no adjective that can't be measured. Experience bullets are quantified lines with units. |
@@ -361,7 +364,7 @@ Two expansions of the `.cursorrules` token set were made, and only one survives:
 
 | Addition | Verdict |
 |---|---|
-| `signal-red` `#D37769` for diff `-` lines | **Removed in round 2.** It was justified only by the unified-diff case study body; when the case studies were removed it would have become the single unused color in the palette, so the token was deleted. `.cursorrules` records that the palette is two colors and four greys, and that a third hue needs a use the greys cannot carry. |
+| `signal-red` `#D37769` for diff `-` lines | **Removed in round 2.** It was justified only by an older unified-diff project body; when that format was removed it would have become the single unused color in the palette, so the token was deleted. `.cursorrules` records that the palette is two colors and four greys, and that a third hue needs a use the greys cannot carry. |
 | `font-weight-black` `800` for the marquee | **Justified but flagged.** The type system caps at 500 for instrument-like restraint, and 500 at 120px reads as thin rather than as restrained — the reference this was built against uses an ultra-condensed black face. Scope is one CSS class, `.marquee-row`. Geist is variable across 100–900, so this costs no extra font payload. |
 
 ### Three design decisions revised
@@ -419,7 +422,7 @@ explicit bottom-of-document case (`lib/useScrollState.ts`).
 
 **The Trace collided with its own labels.** Branch connectors were drawn from each node's bottom
 edge, straight through the centred metric text below it. Fixed by moving annotations out of any lane
-a connector uses. (Component removed in round 2 with the case studies.)
+a connector uses. (Component removed in round 2 with the older project format.)
 
 **Five `set-state-in-effect` violations.** React's newer lint rule flagged synchronous setState in
 the reduced-motion hook, the scramble, the metric count-up, the cleared-edge counter, and the email
@@ -433,7 +436,7 @@ drop to 0s, and a global media query floor covers anything added later.
 
 **Avoid-list scan.** Source greps for gradients, blur/glass, shadows, radius, non-ASCII glyphs and
 marketing adjectives return only token resets and comments documenting their absence. Radius is
-`rounded-sm` (2px) everywhere plus the single sanctioned `rounded-full` status dot.
+`rounded-sm` (2px) everywhere.
 
 ### One deviation worth flagging
 
@@ -445,7 +448,7 @@ the mono family differs, and it never appears next to the real one.
 
 ## 7. Round 2 audit — marquee, and the section restructure
 
-Sections are now **Hero → Work Experience → Projects → Contact**. Case Studies was removed along with
+Sections are now **Hero → Work Experience → Projects → Education → Contact**. The older detailed-project format was removed along with
 its component, its data file, `TraceDiagram`, `DiffBlock`, the `signal-red` token, the old
 `Experience` data table and `StackCycler`. The old table would have duplicated the same two companies
 the new blocks now cover, so it went rather than sitting one section apart from its own replacement.
@@ -490,7 +493,7 @@ trading for a signature that arrives on the first scroll instead of on load. Rec
 positioning statement ever gets shorter.
 
 Final state: no overflow at 390 / 480 / 820 / 1440 / 1700px, 270 rendered text styles passing AA
-across three widths, all ten interaction checks green, one `h1` / three `h2` / five `h3` with no
+across three widths, all interaction checks green, one `h1` / four `h2` / six `h3` with no
 level skipped, and `next build` and `eslint` clean.
 
 ---
@@ -501,7 +504,7 @@ Placeholders will be marked `TODO` in code and must be replaced before deploy:
 
 - Resume PDF — drop the file at `public/resume.pdf`; both CTAs already point there
 - Contact email — re-encode as base64 halves in `EMAIL_PARTS`, see the comment there
-- Real domain, as `NEXT_PUBLIC_SITE_URL` in Vercel, so Open Graph URLs resolve absolutely
+- Production domain is derived from Vercel's canonical production-host variable so Open Graph, robots, and sitemap URLs resolve absolutely
 - Real screenshots for PocketSpotter and Fish Species Classifier. When the images become local
   files, delete the `images.remotePatterns` entry in `next.config.ts`
 - Graduation term (assumed `NEW_GRAD_2027` per the status line in `.cursorrules` — confirm)
