@@ -25,7 +25,7 @@ export function Education() {
                   className="relative flex h-14 w-28 shrink-0 items-center justify-center overflow-hidden rounded-sm border border-border-hi bg-bg sm:h-16 sm:w-32"
                 >
                   <Image
-                    src="/logos/mcmaster-university.png"
+                    src="/assets/logos/mcmaster-university.png"
                     alt=""
                     fill
                     sizes="8rem"

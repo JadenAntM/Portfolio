@@ -22,8 +22,8 @@ export const PROJECTS: Project[] = [
     name: "PocketSpotter",
     description:
       "Real-time computer-vision fitness assistant that tracks 33 pose landmarks to count reps, assess form and pacing, time rests, overlay live stats, and log workouts to CSV.",
-    image: PLACEHOLDER_IMAGE("POCKETSPOTTER"),
-    alt: "Placeholder preview for the PocketSpotter interface",
+    image: "/assets/projects/pocketspotter.jpg",
+    alt: "PocketSpotter fitness form coaching interface",
     stack: ["Python", "OpenCV", "MediaPipe", "Flask"],
     href: "https://github.com/kyle174/PocketSpotter",
   },

@@ -155,7 +155,7 @@
     z-index: 1;
     inset: 0;
     pointer-events: none;
-    background-image: url("/textures/noise.png");
+    background-image: url("/assets/textures/noise.png");
     background-repeat: repeat;
     mix-blend-mode: soft-light;
     /* Near-black suppresses soft-light strongly; 10% here resolves to only a

@@ -64,7 +64,7 @@ export const PROFILE = {
 } as const;
 
 export const PROFILE_LINKS = {
-  resume: "/resume.pdf",
+  resume: "/assets/documents/jaden-moore-resume.pdf",
   github: "https://github.com/JadenAntM",
   linkedin: "https://www.linkedin.com/in/jadenamoore/",
 } as const;
@@ -86,12 +86,12 @@ export const SOCIAL_LINKS: ProfileLink[] = [
     label: "GitHub",
     href: PROFILE_LINKS.github,
     external: true,
-    icon: "/icons/github.svg",
+    icon: "/assets/icons/github.svg",
   },
   {
     label: "LinkedIn",
     href: PROFILE_LINKS.linkedin,
     external: true,
-    icon: "/icons/linkedin.svg",
+    icon: "/assets/icons/linkedin.svg",
   },
 ];

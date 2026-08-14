@@ -15,7 +15,7 @@ export interface ExperienceRole {
 export const EXPERIENCE: ExperienceRole[] = [
   {
     company: "RBC Capital Markets",
-    logo: "/logos/rbc-capital-markets.svg",
+    logo: "/assets/logos/rbc-capital-markets.svg",
     monogram: "RBC",
     role: "Software Developer Intern — Quantitative Technology Services",
     dates: "2026.05 — 2026.08",
@@ -29,7 +29,7 @@ export const EXPERIENCE: ExperienceRole[] = [
   },
   {
     company: "TFI International",
-    logo: "/logos/tfi-international.webp",
+    logo: "/assets/logos/tfi-international.webp",
     monogram: "TFI",
     role: "Software Engineer Intern",
     dates: "2025.04 — 2026.04",

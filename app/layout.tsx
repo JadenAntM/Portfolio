@@ -17,9 +17,9 @@ export const metadata: Metadata = {
   applicationName: TITLE,
   authors: [{ name: PROFILE.name }],
   icons: {
-    icon: "/JFavicon.png",
-    shortcut: "/JFavicon.png",
-    apple: "/JFavicon.png",
+    icon: "/assets/icons/jaden-favicon.png",
+    shortcut: "/assets/icons/jaden-favicon.png",
+    apple: "/assets/icons/jaden-favicon.png",
   },
   keywords: [
     "software engineering",
