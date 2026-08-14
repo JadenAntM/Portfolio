@@ -46,7 +46,7 @@ function ProjectCard({
           alt={project.alt}
           fill
           sizes="(min-width: 48rem) 40vw, 86vw"
-          className="object-cover"
+          className="object-contain p-2"
         />
         <span className="mono absolute top-3 left-3 border border-border bg-bg px-2 py-1 text-micro text-fg-tertiary">
           PROJECT_{pad(PROJECTS.indexOf(project) + 1)}
