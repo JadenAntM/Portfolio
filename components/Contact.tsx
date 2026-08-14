@@ -19,7 +19,12 @@ export function Contact() {
             <HeadingReveal id={headingId(meta.id)}>{meta.label}</HeadingReveal>
 
             <p className="mt-4 max-w-(--measure-body) text-body text-fg-secondary">
-              Open to new-grad and internship roles. Fastest reply by email.
+              Open to 2027 new-grad backend and data engineering roles. Fastest
+              reply by email.
+            </p>
+            <p className="mt-3 max-w-(--measure-body) text-body text-fg-secondary">
+              If your team is building reliable systems, data platforms, or
+              internal tools, I&apos;d be glad to talk.
             </p>
 
             <ul className="mt-10 space-y-4">

@@ -5,6 +5,7 @@
 
 export interface Project {
   name: string;
+  subtitle?: string;
   /** One line. What it does, not why it is exciting. */
   description: string;
   image: string;
@@ -12,6 +13,13 @@ export interface Project {
   alt: string;
   stack: string[];
   href: string;
+  attribution?: string;
+  details?: {
+    label: string;
+    value: string;
+  }[];
+  sourceCodeHref?: string;
+  liveDemoHref?: string;
 }
 
 const PLACEHOLDER_IMAGE = (label: string) =>
@@ -20,12 +28,27 @@ const PLACEHOLDER_IMAGE = (label: string) =>
 export const PROJECTS: Project[] = [
   {
     name: "PocketSpotter",
+    subtitle: "AI Fitness Form Coach",
     description:
-      "Real-time computer-vision fitness assistant that tracks 33 pose landmarks to count reps, assess form and pacing, time rests, overlay live stats, and log workouts to CSV.",
+      "Real-time computer-vision coaching for lifters who want immediate feedback on form, pacing, and completed reps.",
     image: "/assets/projects/pocketspotter.jpg",
     alt: "PocketSpotter fitness form coaching interface",
     stack: ["Python", "OpenCV", "MediaPipe", "Flask"],
     href: "https://github.com/kyle174/PocketSpotter",
+    attribution:
+      "Team of four · DeltaHacks XI hackathon · Owned pose-processing pipeline, Flask integration, and workout logging.",
+    details: [
+      {
+        label: "Technical decision",
+        value:
+          "Built an angle-based state pipeline over 33 MediaPipe landmarks, then connected live feedback and CSV workout logging through Flask.",
+      },
+      {
+        label: "Result",
+        value: "98% accuracy with sub-50ms processing latency.",
+      },
+    ],
+    sourceCodeHref: "https://github.com/kyle174/PocketSpotter",
   },
   {
     name: "Fish Species Classifier",

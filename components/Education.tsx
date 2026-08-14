@@ -66,7 +66,7 @@ export function Education() {
               {EDUCATION.location}
             </SpecBlock>
             <SpecBlock label="Graduation">{EDUCATION.graduation}</SpecBlock>
-            <SpecBlock label="Specialization GPA">{EDUCATION.gpa}</SpecBlock>
+            <SpecBlock label="GPA">{EDUCATION.gpa}</SpecBlock>
             <SpecBlock label="Honors">
               <ul>
                 {EDUCATION.honors.map((honor) => (

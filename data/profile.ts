@@ -21,45 +21,20 @@ export const PROFILE = {
   // TODO(jaden): confirm graduation term.
   cohort: "NEW_GRAD_2027",
 
-  /**
-   * Three sentences, no adjective that cannot be measured. See the copy rule in
-   * PLAN.md §5.
-   * TODO(jaden): rewrite in your own words — this is scaffolding, not your voice.
-   */
   positioning: [
-    "I build internal tools and data workflows that reduce operational work—from Python automation and ETL pipelines to full-stack support platforms.",
-    "Previously at RBC Capital Markets and TFI International, working on internal platform and pipeline code.",
-    "Currently looking for a new-grad role in full-stack software engineering or data engineering.",
+    "Software engineer focused on backend systems, data pipelines, and internal platforms.",
+    "Most recently at RBC Capital Markets and TFI International, I built tools that cut investigation time 92% and automated 18+ hours of weekly operational work.",
+    "Seeking 2027 new-grad backend and data engineering roles.",
   ],
 
   /** Resume skills, split across rows 2 and 3 by the Hero. */
   stack: [
     "Python",
-    "Java",
-    "JavaScript",
-    "TypeScript",
-    "SQL",
-    "C",
-    "HTML",
-    "CSS",
-    "Spring Boot",
-    "TensorFlow",
-    "Keras",
-    "React.js",
-    "Node.js",
+    "TypeScript / React",
     "Flask",
-    "Selenium",
-    "MySQL",
-    "PostgreSQL",
+    "SQL / PostgreSQL",
     "MongoDB",
-    "Git",
-    "AWS S3",
-    "AWS ECS",
-    "pytest",
-    "SonarQube",
-    "Docker",
-    "Postman",
-    "Linux",
+    "REST APIs",
   ],
 } as const;
 

@@ -319,6 +319,10 @@
     grid-template-rows: minmax(0, 0.92fr) minmax(0, 1.08fr);
   }
 
+  .project-card-detailed {
+    height: min(72dvh, 42rem);
+  }
+
   .project-native-scroll {
     scrollbar-width: thin;
     scrollbar-color: var(--color-border-hi) transparent;
@@ -350,6 +354,10 @@
 
     .project-card {
       height: 36rem;
+    }
+
+    .project-card-detailed {
+      height: 48rem;
     }
   }
 

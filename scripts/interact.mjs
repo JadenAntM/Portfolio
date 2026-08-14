@@ -213,66 +213,37 @@ check(
     .join(" "),
 );
 
-/* -- 2b. the Work stage engages past the narrow fallback ----------------- */
-const pinned = await page.evaluate(
-  () => document.querySelectorAll(".stage-pin").length,
-);
-check("stage: Work is pinned at desktop width", pinned === 1, `${pinned} pinned stage`);
+/* -- 2b. Work stays static, vertical, and easy to scan -------------------- */
+const experienceLayout = await page.evaluate(() => {
+  const grid = document.querySelector("[data-experience-grid]");
+  const cards = [...document.querySelectorAll("#experience article")].map((card) => {
+    const rect = card.getBoundingClientRect();
+    return {
+      top: rect.top,
+      bottom: rect.bottom,
+      left: rect.left,
+      width: rect.width,
+      innerColumns: getComputedStyle(card).gridTemplateColumns.split(" ").length,
+    };
+  });
 
-/* -- 2c. stage handoffs: no visual stacking, every item reached ----------- */
-/**
- * Sweep the full progress range for the Work stage. This intentionally reads the
- * rendered styles instead of duplicating ScrollStage's range arithmetic, so a
- * future change cannot reintroduce overlap for longer experience blocks
- * without failing the check.
- */
-const stageHandoffs = await page.evaluate(async () => {
-  const nextFrame = () => new Promise((resolve) => requestAnimationFrame(resolve));
-  const stages = [...document.querySelectorAll("[data-scroll-stage]")];
-  const reports = [];
-
-  for (const stage of stages) {
-    const items = [...stage.querySelectorAll("[data-scroll-stage-item]")];
-    const top = stage.getBoundingClientRect().top + window.scrollY;
-    const span = stage.getBoundingClientRect().height - window.innerHeight;
-    const fullyVisible = new Set();
-    let overlapCount = 0;
-
-    for (let sample = 0; sample <= 100; sample += 1) {
-      window.scrollTo({ top: top + span * (sample / 100), behavior: "instant" });
-      await nextFrame();
-      await nextFrame();
-
-      const active = items.filter((item) => {
-        const style = getComputedStyle(item);
-        return style.visibility !== "hidden" && Number(style.opacity) > 0.01;
-      });
-      if (active.length > 1) overlapCount += 1;
-
-      items.forEach((item, index) => {
-        const style = getComputedStyle(item);
-        if (style.visibility !== "hidden" && Number(style.opacity) > 0.99) {
-          fullyVisible.add(index);
-        }
-      });
-    }
-
-    reports.push({ items: items.length, fullyVisible: fullyVisible.size, overlapCount });
-  }
-
-  window.scrollTo(0, 0);
-  return reports;
+  return {
+    cards,
+    flow: grid ? getComputedStyle(grid).display : "missing",
+    pins: document.querySelectorAll("#experience .stage-pin, #experience [data-scroll-stage]").length,
+  };
 });
 
 check(
-  "stage: all entries resolve individually with no visual overlap",
-  stageHandoffs.length === 1 &&
-    stageHandoffs.every(
-      (stage) => stage.overlapCount === 0 && stage.fullyVisible === stage.items,
-    ),
-  stageHandoffs
-    .map((stage) => `${stage.fullyVisible}/${stage.items} visible, ${stage.overlapCount} overlaps`)
-    .join(" · "),
+  "experience: both entries form a static vertical list with scannable rows",
+  experienceLayout.cards.length === 2 &&
+    experienceLayout.pins === 0 &&
+    experienceLayout.cards[0].innerColumns === 2 &&
+    experienceLayout.cards[1].innerColumns === 2 &&
+    Math.abs(experienceLayout.cards[0].left - experienceLayout.cards[1].left) < 2 &&
+    Math.abs(experienceLayout.cards[0].width - experienceLayout.cards[1].width) < 2 &&
+    experienceLayout.cards[1].top > experienceLayout.cards[0].bottom,
+  JSON.stringify(experienceLayout),
 );
 
 /* -- 2d. Projects maps its vertical range onto the horizontal rail -------- */
@@ -383,12 +354,17 @@ check(
   await mobilePage.goto(url, { waitUntil: "networkidle0" });
   const mobileProjects = await mobilePage.evaluate(() => {
     const list = document.querySelector(".project-native-scroll");
+    const experienceCards = [...document.querySelectorAll("#experience article")].map(
+      (card) => card.getBoundingClientRect().left,
+    );
     return {
       pin: document.querySelectorAll("[data-project-rail]").length,
       list: list ? 1 : 0,
       snap: list ? getComputedStyle(list).scrollSnapType : "none",
       cards: document.querySelectorAll("#projects [data-project-carriage]").length,
       labelled: list?.getAttribute("aria-label") === "Project gallery",
+      experienceCards,
+      experiencePins: document.querySelectorAll("#experience .stage-pin").length,
     };
   });
 
@@ -398,7 +374,9 @@ check(
       mobileProjects.list === 1 &&
       mobileProjects.snap.startsWith("x") &&
       mobileProjects.cards === 2 &&
-      mobileProjects.labelled,
+      mobileProjects.labelled &&
+      mobileProjects.experienceCards.length === 2 &&
+      mobileProjects.experiencePins === 0,
     JSON.stringify(mobileProjects),
   );
   await mobilePage.close();

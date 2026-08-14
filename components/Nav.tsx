@@ -108,7 +108,10 @@ function HorizontalNav({
                 <span className={isActive ? "text-accent" : "text-fg-tertiary"}>
                   {section.index}
                 </span>
-                <span>{section.railLabel}</span>
+                <span className="sm:hidden">
+                  {section.compactLabel ?? section.railLabel}
+                </span>
+                <span className="hidden sm:inline">{section.railLabel}</span>
               </a>
               {isActive ? (
                 <motion.span

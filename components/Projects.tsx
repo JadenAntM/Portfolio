@@ -37,7 +37,9 @@ function ProjectCard({
   linkTabIndex?: number;
 }) {
   return (
-    <article className="project-card group grid overflow-hidden rounded-sm border border-border bg-bg transition-colors hover:border-accent focus-within:border-accent">
+    <article
+      className={`project-card group grid overflow-hidden rounded-sm border border-border bg-bg transition-colors hover:border-accent focus-within:border-accent ${project.details ? "project-card-detailed" : ""}`}
+    >
       <div className="relative min-h-0 overflow-hidden border-b border-border bg-surface md:border-r md:border-b-0">
         <Image
           src={project.image}
@@ -52,8 +54,36 @@ function ProjectCard({
       </div>
 
       <div className="flex min-h-0 flex-col p-5 sm:p-6 lg:p-8">
-        <h3 className="text-h3 text-fg">{project.name}</h3>
+        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <h3 className="text-h3 text-fg">{project.name}</h3>
+          {project.subtitle ? (
+            <p className="mono text-mono-sm text-fg-tertiary">
+              {project.subtitle}
+            </p>
+          ) : null}
+        </div>
         <p className="mt-3 text-body text-fg-secondary">{project.description}</p>
+
+        {project.attribution ? (
+          <p className="mono mt-4 border-l border-accent pl-3 text-micro leading-relaxed text-fg-secondary">
+            {project.attribution}
+          </p>
+        ) : null}
+
+        {project.details ? (
+          <dl className="mt-4 space-y-3 border-t border-border pt-4">
+            {project.details.map((detail) => (
+              <div key={detail.label}>
+                <dt className="mono text-micro uppercase text-fg-tertiary">
+                  {detail.label}
+                </dt>
+                <dd className="mt-1 text-sm leading-relaxed text-fg-secondary">
+                  {detail.value}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        ) : null}
 
         <div className="mt-6 border-t border-border pt-5">
           <p className="mono mb-3 text-micro uppercase text-fg-tertiary">Stack</p>
@@ -69,10 +99,21 @@ function ProjectCard({
           </ul>
         </div>
 
-        <div className="mt-auto pt-6">
-          <ArrowLink href={project.href} external tabIndex={linkTabIndex}>
-            View project
-          </ArrowLink>
+        <div className="mt-auto flex flex-wrap gap-x-6 gap-y-3 pt-6">
+          {project.liveDemoHref ? (
+            <ArrowLink href={project.liveDemoHref} external tabIndex={linkTabIndex}>
+              Live demo
+            </ArrowLink>
+          ) : null}
+          {project.sourceCodeHref ? (
+            <ArrowLink href={project.sourceCodeHref} external tabIndex={linkTabIndex}>
+              Source code
+            </ArrowLink>
+          ) : (
+            <ArrowLink href={project.href} external tabIndex={linkTabIndex}>
+              View project
+            </ArrowLink>
+          )}
         </div>
       </div>
     </article>
@@ -123,7 +164,7 @@ function ProjectHeading({ activeIndex }: { activeIndex: number }) {
             <SectionMarker index={meta.index!} />
             <HeadingReveal id={headingId(meta.id)}>{meta.label}</HeadingReveal>
             <p className="mono mt-3 text-label uppercase text-fg-tertiary">
-              Vertical input / horizontal output
+              Selected engineering work
             </p>
           </div>
           <p

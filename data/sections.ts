@@ -7,13 +7,27 @@ export interface SectionMeta {
   label: string;
   /** Abbreviated form for the narrow left rail. */
   railLabel: string;
+  /** Short form used only when five links share the phone-width bottom bar. */
+  compactLabel?: string;
 }
 
 export const SECTIONS: SectionMeta[] = [
-  { id: "index", index: null, label: "Index", railLabel: "IDX" },
+  { id: "index", index: "00", label: "Index", railLabel: "TOP" },
   { id: "experience", index: "01", label: "Work Experience", railLabel: "WORK" },
-  { id: "projects", index: "02", label: "Projects", railLabel: "PROJ" },
-  { id: "education", index: "03", label: "Education", railLabel: "EDU" },
+  {
+    id: "projects",
+    index: "02",
+    label: "Projects",
+    railLabel: "PROJECTS",
+    compactLabel: "PROJ",
+  },
+  {
+    id: "education",
+    index: "03",
+    label: "Education",
+    railLabel: "EDUCATION",
+    compactLabel: "EDU",
+  },
   { id: "contact", index: "04", label: "Contact", railLabel: "CONTACT" },
 ];
 
