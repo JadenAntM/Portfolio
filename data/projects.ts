@@ -31,8 +31,8 @@ export const PROJECTS: Project[] = [
     subtitle: "AI Fitness Form Coach",
     description:
       "Real-time computer-vision coaching for lifters who want immediate feedback on form, pacing, and completed reps.",
-    image: "/assets/projects/pocketspotter.jpg",
-    alt: "PocketSpotter fitness form coaching interface",
+    image: "/assets/projects/pocketspotter.png",
+    alt: "PocketSpotter AI fitness form coaching dashboard",
     stack: ["Python", "OpenCV", "MediaPipe", "Flask"],
     href: "https://github.com/kyle174/PocketSpotter",
     attribution:
