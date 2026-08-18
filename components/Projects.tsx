@@ -17,7 +17,7 @@ import { useMediaQuery } from "@/lib/useMediaQuery";
 import { usePrefersReducedMotion } from "@/lib/usePrefersReducedMotion";
 
 const meta = SECTIONS.find((section) => section.id === "projects")!;
-const MOBILE = "(max-width: 47.999rem)";
+const STATIC_RAIL = "(max-width: 74.999rem)";
 const SETTLE_SPRING = {
   type: "spring",
   stiffness: 460,
@@ -40,20 +40,21 @@ function ProjectCard({
     <article
       className={`project-card group grid overflow-hidden rounded-sm border border-border bg-bg transition-colors hover:border-accent focus-within:border-accent ${project.details ? "project-card-detailed" : ""}`}
     >
-      <div className="relative min-h-0 overflow-hidden border-b border-border bg-surface md:border-r md:border-b-0">
+      <div className="project-card-media relative min-h-0 overflow-hidden border-b border-border bg-surface md:border-r md:border-b-0">
         <Image
           src={project.image}
           alt={project.alt}
           fill
+          priority={PROJECTS.indexOf(project) === 0}
           sizes="(min-width: 48rem) 40vw, 86vw"
-          className="object-contain p-2"
+          className="project-card-image object-contain"
         />
         <span className="mono absolute top-3 left-3 border border-border bg-bg px-2 py-1 text-micro text-fg-tertiary">
           PROJECT_{pad(PROJECTS.indexOf(project) + 1)}
         </span>
       </div>
 
-      <div className="flex min-h-0 flex-col p-5 sm:p-6 lg:p-8">
+      <div className="project-card-copy flex min-h-0 flex-col p-5 sm:p-6 lg:p-8">
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
           <h3 className="text-h3 text-fg">{project.name}</h3>
           {project.subtitle ? (
@@ -109,11 +110,15 @@ function ProjectCard({
             <ArrowLink href={project.sourceCodeHref} external tabIndex={linkTabIndex}>
               Source code
             </ArrowLink>
-          ) : (
+          ) : project.href ? (
             <ArrowLink href={project.href} external tabIndex={linkTabIndex}>
               View project
             </ArrowLink>
-          )}
+          ) : project.accessLabel ? (
+            <p className="mono text-micro uppercase tracking-wide text-fg-tertiary">
+              {project.accessLabel}
+            </p>
+          ) : null}
         </div>
       </div>
     </article>
@@ -190,8 +195,8 @@ export function Projects() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [travel, setTravel] = useState({ start: 0, end: 0 });
   const prefersReduced = usePrefersReducedMotion();
-  const isMobile = useMediaQuery(MOBILE, true);
-  const isStatic = prefersReduced || isMobile;
+  const usesStaticRail = useMediaQuery(STATIC_RAIL, true);
+  const isStatic = prefersReduced || usesStaticRail;
 
   const { scrollYProgress } = useScroll({
     target: trackRef,

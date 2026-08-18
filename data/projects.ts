@@ -12,7 +12,8 @@ export interface Project {
   /** Describes the image itself, not the project. */
   alt: string;
   stack: string[];
-  href: string;
+  href?: string;
+  accessLabel?: string;
   attribution?: string;
   details?: {
     label: string;
@@ -26,6 +27,40 @@ const PLACEHOLDER_IMAGE = (label: string) =>
   `https://placehold.co/1280x800/111111/85857f/png?text=${label}`;
 
 export const PROJECTS: Project[] = [
+  {
+    name: "VIAC",
+    subtitle: "Virtual Investment Assistant Copilot",
+    description:
+      "AI-powered copilot that combines live meeting insights, document analysis, tailored investment proposals, and onboarding in one advisor workflow.",
+    image: "/assets/projects/RBC_Hackathon.png",
+    alt: "Team 21, Debug and Conquer, after winning the Real-Time AI Insights use case at RBC's TechPowHer Hackathon",
+    stack: [
+      "Generative AI",
+      "Real-Time Insights",
+      "Document Intelligence",
+      "Workflow Automation",
+    ],
+    accessLabel: "RBC INTERNAL · NO PUBLIC LINK",
+    attribution:
+      "Team of six RBC co-op students · TechPowHer Hackathon · 1st in our use case · 3rd overall of 22 teams.",
+    details: [
+      {
+        label: "Advisor workflow",
+        value:
+          "Analyzed live client conversations and documents, captured requirements, and generated tailored investment proposals.",
+      },
+      {
+        label: "Onboarding",
+        value:
+          "Prepared account-opening information and Investment Policy Statements, with a path to trigger portfolio rebalancing once client funds arrived.",
+      },
+      {
+        label: "Delivery",
+        value:
+          "Built the proof of concept in one week and presented it live to a panel of four RBC Vice Presidents.",
+      },
+    ],
+  },
   {
     name: "PocketSpotter",
     subtitle: "AI Fitness Form Coach",

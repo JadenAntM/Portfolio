@@ -18,7 +18,7 @@ export const EXPERIENCE: ExperienceRole[] = [
     logo: "/assets/logos/rbc-capital-markets.svg",
     monogram: "RBC",
     role: "Software Developer Intern — Quantitative Technology Services",
-    dates: "2026.05 — 2026.08",
+    dates: "May 2026 — August 2026",
     stack: ["Python", "React", "Flask", "PostgreSQL", "REST APIs"],
     bullets: [
       "Cut position-break investigation time 92%, from 120 to 10 minutes, with a Python tool spanning an 8M-line server log, Oracle data, and reconciliation files.",
@@ -32,7 +32,7 @@ export const EXPERIENCE: ExperienceRole[] = [
     logo: "/assets/logos/tfi-international.webp",
     monogram: "TFI",
     role: "Software Engineer Intern",
-    dates: "2025.04 — 2026.04",
+    dates: "April 2025 — April 2026",
     stack: ["Python", "Azure AI", "MongoDB", "REST APIs"],
     bullets: [
       "Automated load bidding with Python bots, saving operations coordinators 10 hours weekly and an estimated $25,000 annually.",

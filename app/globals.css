@@ -315,12 +315,16 @@
   }
 
   .project-card {
-    height: min(55dvh, 34rem);
-    grid-template-rows: minmax(0, 0.92fr) minmax(0, 1.08fr);
+    height: auto;
+    grid-template-rows: auto auto;
   }
 
-  .project-card-detailed {
-    height: min(72dvh, 42rem);
+  .project-card-media {
+    aspect-ratio: 16 / 10;
+  }
+
+  .project-card-image {
+    padding: 0.5rem;
   }
 
   .project-native-scroll {
@@ -333,6 +337,10 @@
     .project-card {
       grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
       grid-template-rows: minmax(0, 1fr);
+    }
+
+    .project-card-media {
+      aspect-ratio: auto;
     }
   }
 
@@ -352,12 +360,25 @@
       width: 86vw;
     }
 
+    .project-card-image {
+      padding: 3rem 0.5rem 0.5rem;
+    }
+
+  }
+
+  @media (min-width: 75rem) {
     .project-card {
-      height: 36rem;
+      height: min(calc(100dvh - 11rem), 34rem);
     }
 
     .project-card-detailed {
-      height: 48rem;
+      height: min(calc(100dvh - 11rem), 46rem);
+    }
+
+    .project-card-copy {
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--color-border-hi) transparent;
     }
   }
 
