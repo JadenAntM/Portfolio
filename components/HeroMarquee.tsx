@@ -82,7 +82,7 @@ export function HeroMarquee({ title, skills }: HeroMarqueeProps) {
   const rows = [[title], skills[0], skills[1]] as const;
 
   return (
-    <div ref={bandRef} className="border-t border-border py-8 sm:py-10">
+    <div ref={bandRef} className="border-t border-border py-4 sm:py-10">
       <span className="sr-only">
         {title}. Stack: {[...skills[0], ...skills[1]].join(", ")}.
       </span>

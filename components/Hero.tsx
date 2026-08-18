@@ -34,7 +34,8 @@ export function Hero() {
       <GridRow
         // Tighter than the standard track padding: the hero has to seat the
         // identity block and the marquee band in one viewport.
-        mainClassName="lg:pt-24 pb-14 sm:pb-16 lg:pb-20"
+        className="hero-row"
+        mainClassName="pt-8 pb-6 sm:pt-20 sm:pb-16 lg:pt-24 lg:pb-20"
         spec={
           <>
             <SpecBlock label="Index" first>
@@ -55,13 +56,13 @@ export function Hero() {
             </p>
 
             {/* Short rule: structure, echoing the sheet hairlines at content scale. */}
-            <hr className="mt-8 w-28 border-t border-border" />
+            <hr className="mt-5 w-28 border-t border-border sm:mt-8" />
 
-            <p className="mono mt-8 text-label uppercase text-fg-tertiary">
+            <p className="mono mt-5 text-label uppercase text-fg-tertiary sm:mt-8">
               {PROFILE.cohort}
             </p>
 
-            <div className="mt-10 max-w-(--measure-lead) space-y-4">
+            <div className="mt-6 max-w-(--measure-lead) space-y-3 sm:mt-10 sm:space-y-4">
               {PROFILE.positioning.map((sentence) => (
                 <p key={sentence} className="text-lead text-fg-secondary">
                   {sentence}
@@ -69,7 +70,7 @@ export function Hero() {
               ))}
             </div>
 
-            <div className="mt-12 flex flex-wrap items-center gap-x-8 gap-y-5">
+            <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 sm:mt-12 sm:gap-x-8 sm:gap-y-5">
               <ResumeButton />
               {SOCIAL_LINKS.map((link) => (
                 <ArrowLink
