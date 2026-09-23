@@ -50,8 +50,8 @@ export const PROFILE_LINKS = {
  * Generated from the real address; keep the two decoded halves out of source.
  */
 export const EMAIL_PARTS = {
-  user: "amFkZW4uYXkubW9vcmU=",
-  domain: "Z21haWwuY29t",
+  user: "aGVsbG8=",
+  domain: "amFkZW5tb29yZS5kZXY=",
 } as const;
 
 export const SOCIAL_LINKS: ProfileLink[] = [
