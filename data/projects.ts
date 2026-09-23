@@ -20,6 +20,30 @@ export interface Project {
 
 export const PROJECTS: Project[] = [
   {
+    name: "PocketSpotter",
+    subtitle: "AI Fitness Form Coach",
+    description:
+      "Real-time computer-vision coaching for lifters who want immediate feedback on form, pacing, and completed reps.",
+    image: "/assets/projects/pocketspotter.png",
+    alt: "PocketSpotter AI fitness form coaching dashboard",
+    stack: ["Python", "OpenCV", "MediaPipe", "Flask"],
+    href: "https://github.com/kyle174/PocketSpotter",
+    attribution:
+      "Team of four · DeltaHacks XI hackathon · Owned pose-processing pipeline, Flask integration, and workout logging.",
+    details: [
+      {
+        label: "Technical decision",
+        value:
+          "Built an angle-based state pipeline over 33 MediaPipe landmarks, then connected live feedback and CSV workout logging through Flask.",
+      },
+      {
+        label: "Result",
+        value: "98% accuracy with sub-50ms processing latency.",
+      },
+    ],
+    sourceCodeHref: "https://github.com/kyle174/PocketSpotter",
+  },
+  {
     name: "VIAC",
     subtitle: "Virtual Investment Assistant Copilot",
     description:
@@ -52,30 +76,6 @@ export const PROJECTS: Project[] = [
           "Built the proof of concept in one week and presented it live to a panel of four RBC Vice Presidents.",
       },
     ],
-  },
-  {
-    name: "PocketSpotter",
-    subtitle: "AI Fitness Form Coach",
-    description:
-      "Real-time computer-vision coaching for lifters who want immediate feedback on form, pacing, and completed reps.",
-    image: "/assets/projects/pocketspotter.png",
-    alt: "PocketSpotter AI fitness form coaching dashboard",
-    stack: ["Python", "OpenCV", "MediaPipe", "Flask"],
-    href: "https://github.com/kyle174/PocketSpotter",
-    attribution:
-      "Team of four · DeltaHacks XI hackathon · Owned pose-processing pipeline, Flask integration, and workout logging.",
-    details: [
-      {
-        label: "Technical decision",
-        value:
-          "Built an angle-based state pipeline over 33 MediaPipe landmarks, then connected live feedback and CSV workout logging through Flask.",
-      },
-      {
-        label: "Result",
-        value: "98% accuracy with sub-50ms processing latency.",
-      },
-    ],
-    sourceCodeHref: "https://github.com/kyle174/PocketSpotter",
   },
   {
     name: "Fish Species Classifier",
