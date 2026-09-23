@@ -6,6 +6,7 @@ import { PROFILE } from "@/data/profile";
 export const alt = `${PROFILE.name} — ${PROFILE.discipline}`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
+export const dynamic = "force-static";
 
 const FONT_DIR = join(process.cwd(), "node_modules", "geist", "dist", "fonts");
 

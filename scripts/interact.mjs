@@ -246,59 +246,60 @@ check(
   JSON.stringify(experienceLayout),
 );
 
-/* -- 2d. Projects maps its vertical range onto the horizontal rail -------- */
-const projectRail = await page.evaluate(async () => {
-  const nextFrame = () => new Promise((resolve) => requestAnimationFrame(resolve));
-  const track = document.querySelector("[data-project-rail]");
-  const pin = document.querySelector(".project-rail-pin");
+/* -- 2d. Projects uses explicit controls without scroll-jacking ----------- */
+const projectGalleryStart = await page.evaluate(() => {
+  const list = document.querySelector(".project-native-scroll");
   const cards = [...document.querySelectorAll("[data-project-carriage]")];
-  if (!track || !pin || cards.length === 0) return null;
+  const controls = [...document.querySelectorAll('[aria-label="Project controls"] button')];
+  if (!list || cards.length === 0) return null;
 
-  const top = track.getBoundingClientRect().top + window.scrollY;
-  const span = track.getBoundingClientRect().height - window.innerHeight;
-  const readCentered = () => {
-    const center = window.innerWidth / 2;
-    return cards.map((card) => {
-      const rect = card.getBoundingClientRect();
-      return Math.abs(rect.left + rect.width / 2 - center);
-    });
-  };
-
-  window.scrollTo({ top, behavior: "instant" });
-  await nextFrame();
-  await nextFrame();
-  const start = readCentered();
-
-  window.scrollTo({ top: top + span, behavior: "instant" });
-  await nextFrame();
-  await nextFrame();
-  const end = readCentered();
-  const index = document.querySelector("[data-project-index]")?.textContent?.trim();
-  const projectLinkTabs = cards.map((card) => card.querySelector("a")?.tabIndex);
-
-  window.scrollTo({ top: 0, behavior: "instant" });
+  const first = cards[0].getBoundingClientRect();
   return {
     cards: cards.length,
-    trackViewports: track.getBoundingClientRect().height / window.innerHeight,
-    pinViewports: pin.getBoundingClientRect().height / window.innerHeight,
-    firstDelta: start[0],
-    lastDelta: end[end.length - 1],
-    index,
-    projectLinkTabs,
+    controls: controls.length,
+    firstDelta: Math.abs(first.left + first.width / 2 - window.innerWidth / 2),
+    previousDisabled: controls[0]?.disabled,
+    nextDisabled: controls[1]?.disabled,
+    noPinnedRail:
+      document.querySelectorAll("[data-project-rail], .project-rail-pin").length === 0,
+    copyOverflow: cards.map((card) => {
+      const copy = card.querySelector(".project-card-copy");
+      return copy ? getComputedStyle(copy).overflowY : "missing";
+    }),
+  };
+});
+
+await page.click('[aria-label="Next project"]');
+await new Promise((resolve) => setTimeout(resolve, 650));
+
+const projectGalleryNext = await page.evaluate(() => {
+  const cards = [...document.querySelectorAll("[data-project-carriage]")];
+  const second = cards[1]?.getBoundingClientRect();
+  return {
+    secondDelta: second
+      ? Math.abs(second.left + second.width / 2 - window.innerWidth / 2)
+      : Number.POSITIVE_INFINITY,
+    index: document.querySelector("[data-project-index]")?.textContent?.trim(),
+    previousDisabled: document.querySelector('[aria-label="Previous project"]')?.disabled,
+    nextDisabled: document.querySelector('[aria-label="Next project"]')?.disabled,
   };
 });
 
 check(
-  "projects: one-viewport pin centers first and last rail cards",
-  projectRail &&
-    projectRail.cards === 2 &&
-    Math.abs(projectRail.trackViewports - projectRail.cards) < 0.05 &&
-    Math.abs(projectRail.pinViewports - 1) < 0.05 &&
-    projectRail.firstDelta < 2 &&
-    projectRail.lastDelta < 2 &&
-    projectRail.index === "02/02" &&
-    projectRail.projectLinkTabs.join(",") === "-1,0",
-  projectRail ? JSON.stringify(projectRail) : "rail missing",
+  "projects: explicit controls center cards without a pinned or nested scroll region",
+  projectGalleryStart &&
+    projectGalleryStart.cards === 3 &&
+    projectGalleryStart.controls === 2 &&
+    projectGalleryStart.firstDelta < 2 &&
+    projectGalleryStart.previousDisabled &&
+    !projectGalleryStart.nextDisabled &&
+    projectGalleryStart.noPinnedRail &&
+    projectGalleryStart.copyOverflow.every((value) => value === "visible") &&
+    projectGalleryNext.secondDelta < 2 &&
+    projectGalleryNext.index === "02/03" &&
+    !projectGalleryNext.previousDisabled &&
+    !projectGalleryNext.nextDisabled,
+  JSON.stringify({ start: projectGalleryStart, next: projectGalleryNext }),
 );
 
 /* -- 2e. Lenis source, page progress, and heading masks ------------------- */
@@ -362,6 +363,12 @@ check(
       list: list ? 1 : 0,
       snap: list ? getComputedStyle(list).scrollSnapType : "none",
       cards: document.querySelectorAll("#projects [data-project-carriage]").length,
+      controls: document.querySelectorAll('#projects [aria-label="Project controls"] button')
+        .length,
+      cue: [...document.querySelectorAll("#projects p")].some(
+        (node) => node.textContent?.includes("Swipe or use controls") &&
+          getComputedStyle(node).display !== "none",
+      ),
       labelled: list?.getAttribute("aria-label") === "Project gallery",
       experienceCards,
       experiencePins: document.querySelectorAll("#experience .stage-pin").length,
@@ -373,7 +380,9 @@ check(
     mobileProjects.pin === 0 &&
       mobileProjects.list === 1 &&
       mobileProjects.snap.startsWith("x") &&
-      mobileProjects.cards === 2 &&
+      mobileProjects.cards === 3 &&
+      mobileProjects.controls === 2 &&
+      mobileProjects.cue &&
       mobileProjects.labelled &&
       mobileProjects.experienceCards.length === 2 &&
       mobileProjects.experiencePins === 0,
@@ -479,7 +488,7 @@ check(
     fallback.pins === 0 &&
       fallback.projectRail === 0 &&
       fallback.nativeProjectList === 1 &&
-      fallback.items === 4 &&
+      fallback.items === 5 &&
       fallback.masks === 0 &&
       fallback.allOpaque,
     `${fallback.pins} pins, ${fallback.items} items visible, ${fallback.masks} masks`,

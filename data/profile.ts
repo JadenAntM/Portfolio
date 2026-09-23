@@ -14,17 +14,15 @@ export interface ProfileLink {
 export const PROFILE = {
   name: "Jaden Moore",
   discipline: "Software Engineering",
-  year: "4th Year",
+  year: "McMaster University",
   /** Row 1 of the hero marquee. The role, not the field of study. */
   title: "Software Engineer",
 
-  // TODO(jaden): confirm graduation term.
-  cohort: "NEW_GRAD_2027",
+  cohort: "GRADUATING_APRIL_2027",
 
   positioning: [
-    "Software engineer focused on backend systems, data pipelines, and internal platforms.",
-    "Most recently at RBC Capital Markets and TFI International, I built tools that cut investigation time 92% and automated 18+ hours of weekly operational work.",
-    "Seeking 2027 new-grad backend and data engineering roles.",
+    "Backend and data engineer building internal tools that remove operational work.",
+    "Previously at RBC Capital Markets and TFI International, where I cut investigation time 92% and automated 18+ hours of weekly work.",
   ],
 
   /** Resume skills, split across rows 2 and 3 by the Hero. */

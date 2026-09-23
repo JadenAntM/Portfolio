@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CustomCursor } from "@/components/CustomCursor";
 import { SmoothScrollProvider } from "@/components/SmoothScrollProvider";
 import { PROFILE } from "@/data/profile";
 import { getCanonicalOrigin } from "@/lib/site";
@@ -8,7 +9,7 @@ import "./globals.css";
 
 const TITLE = `${PROFILE.name} — ${PROFILE.discipline}`;
 const DESCRIPTION =
-  "Fourth-year software engineering student building internal tools and data workflows, from Python automation and ETL pipelines to full-stack support platforms.";
+  "McMaster Software Engineering student graduating April 2027, building backend systems, data pipelines, and internal platforms.";
 
 export const metadata: Metadata = {
   metadataBase: getCanonicalOrigin(),
@@ -53,6 +54,7 @@ export default function RootLayout({
     <html lang="en" className={`${sans.variable} ${mono.variable}`}>
       <body className="bg-bg text-fg">
         <SmoothScrollProvider>{children}</SmoothScrollProvider>
+        <CustomCursor />
       </body>
     </html>
   );

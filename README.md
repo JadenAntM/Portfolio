@@ -1,7 +1,7 @@
 # Jaden Moore — Portfolio
 
 Single-page portfolio site. Next.js App Router, TypeScript, Tailwind v4, Framer Motion.
-Deploy target: Vercel.
+Deployed as a static export with GitHub Pages.
 
 ## Running locally
 
@@ -13,6 +13,17 @@ npm run lint
 ```
 
 Node 22+ recommended.
+
+## Deployment
+
+Pushes to `main` run `.github/workflows/deploy-pages.yml`, build the static site,
+and publish the `out/` directory to GitHub Pages. The workflow passes the Pages
+URL into the build so canonical, Open Graph, sitemap, and robots metadata point
+at the deployed site.
+
+The repository's **Settings → Pages → Build and deployment → Source** must be set
+to **GitHub Actions**. Configure the custom domain in that same Pages panel;
+DNS remains managed by the domain registrar.
 
 ## Verification
 
@@ -99,7 +110,6 @@ request at runtime. Geist Sans comes from the `geist` package; JetBrains Mono is
 `woff2` from `@fontsource-variable/jetbrains-mono`, copied to `app/fonts/` and loaded via
 `next/font/local`.
 
-## Content status
+## Content
 
-Placeholder content is marked `TODO` in the data files. See the bottom of `PLAN.md` for the list
-of real facts still needed before deploy.
+Identity, experience, education, links, and project content live in `data/`.

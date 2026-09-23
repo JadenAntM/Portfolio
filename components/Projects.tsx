@@ -1,23 +1,16 @@
 "use client";
 
 import Image from "next/image";
-import {
-  motion,
-  useMotionValueEvent,
-  useScroll,
-  useTransform,
-} from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
+import { useRef, useState } from "react";
 import { ArrowLink } from "@/components/ArrowLink";
 import { HeadingReveal } from "@/components/HeadingReveal";
 import { GridRow, Section, SectionMarker, headingId } from "@/components/Section";
 import { PROJECTS, type Project } from "@/data/projects";
 import { SECTIONS } from "@/data/sections";
-import { useMediaQuery } from "@/lib/useMediaQuery";
 import { usePrefersReducedMotion } from "@/lib/usePrefersReducedMotion";
 
 const meta = SECTIONS.find((section) => section.id === "projects")!;
-const STATIC_RAIL = "(max-width: 74.999rem)";
 const SETTLE_SPRING = {
   type: "spring",
   stiffness: 460,
@@ -159,29 +152,70 @@ function Carriage({
   );
 }
 
-function ProjectHeading({ activeIndex }: { activeIndex: number }) {
+function ProjectHeading({
+  activeIndex,
+  onPrevious,
+  onNext,
+}: {
+  activeIndex: number;
+  onPrevious: () => void;
+  onNext: () => void;
+}) {
   return (
     <GridRow
       mainClassName="project-rail-header"
       main={
-        <div className="flex items-end justify-between gap-6">
-          <div>
-            <SectionMarker index={meta.index!} />
-            <HeadingReveal id={headingId(meta.id)}>{meta.label}</HeadingReveal>
-            <p className="mono mt-3 text-label uppercase text-fg-tertiary">
-              Selected engineering work
+        <div>
+          <div className="flex items-end justify-between gap-6">
+            <div>
+              <SectionMarker index={meta.index!} />
+              <HeadingReveal id={headingId(meta.id)}>{meta.label}</HeadingReveal>
+            </div>
+            <p
+              data-project-index
+              className="mono shrink-0 text-mono-sm text-fg-tertiary"
+              aria-label={`Project ${activeIndex + 1} of ${PROJECTS.length}`}
+              aria-live="polite"
+            >
+              <span className="text-accent">{pad(activeIndex + 1)}</span>
+              <span className="px-1">/</span>
+              {pad(PROJECTS.length)}
             </p>
           </div>
-          <p
-            data-project-index
-            className="mono shrink-0 text-mono-sm text-fg-tertiary"
-            aria-label={`Project ${activeIndex + 1} of ${PROJECTS.length}`}
-            aria-live="polite"
-          >
-            <span className="text-accent">{pad(activeIndex + 1)}</span>
-            <span className="px-1">/</span>
-            {pad(PROJECTS.length)}
-          </p>
+
+          <div className="mt-5 flex items-center justify-between gap-4">
+            <p className="mono text-label uppercase text-fg-tertiary">
+              <span className="sm:hidden">Swipe or use controls</span>
+              <span className="hidden sm:inline">Drag or use controls</span>
+            </p>
+
+            <div
+              className="flex shrink-0 gap-2"
+              role="group"
+              aria-label="Project controls"
+            >
+              <button
+                type="button"
+                onClick={onPrevious}
+                disabled={activeIndex === 0}
+                aria-label="Previous project"
+                aria-controls="project-gallery"
+                className="mono grid size-11 place-items-center rounded-sm border border-border text-mono-sm text-fg transition-[border-color,color] hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:text-fg-tertiary disabled:opacity-35 disabled:hover:border-border"
+              >
+                <span aria-hidden>←</span>
+              </button>
+              <button
+                type="button"
+                onClick={onNext}
+                disabled={activeIndex === PROJECTS.length - 1}
+                aria-label="Next project"
+                aria-controls="project-gallery"
+                className="mono grid size-11 place-items-center rounded-sm border border-border text-mono-sm text-fg transition-[border-color,color] hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:text-fg-tertiary disabled:opacity-35 disabled:hover:border-border"
+              >
+                <span aria-hidden>→</span>
+              </button>
+            </div>
+          </div>
         </div>
       }
     />
@@ -189,54 +223,10 @@ function ProjectHeading({ activeIndex }: { activeIndex: number }) {
 }
 
 export function Projects() {
-  const trackRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
   const rowRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [travel, setTravel] = useState({ start: 0, end: 0 });
   const prefersReduced = usePrefersReducedMotion();
-  const usesStaticRail = useMediaQuery(STATIC_RAIL, true);
-  const isStatic = prefersReduced || usesStaticRail;
-
-  const { scrollYProgress } = useScroll({
-    target: trackRef,
-    offset: ["start start", "end end"],
-  });
-  const x = useTransform(
-    scrollYProgress,
-    [0, 1],
-    [travel.start, travel.end],
-  );
-
-  useMotionValueEvent(scrollYProgress, "change", (progress) => {
-    if (isStatic) return;
-    const next = Math.round(progress * Math.max(PROJECTS.length - 1, 0));
-    setActiveIndex((current) => (current === next ? current : next));
-  });
-
-  useEffect(() => {
-    const viewport = viewportRef.current;
-    const row = rowRef.current;
-    if (!viewport || !row || isStatic) return;
-
-    const measure = () => {
-      const cards = row.querySelectorAll<HTMLElement>("[data-project-carriage]");
-      const first = cards.item(0);
-      const last = cards.item(cards.length - 1);
-      if (!first || !last) return;
-
-      const midpoint = viewport.clientWidth / 2;
-      setTravel({
-        start: midpoint - first.offsetWidth / 2,
-        end: midpoint - (last.offsetLeft + last.offsetWidth / 2),
-      });
-    };
-
-    const observer = new ResizeObserver(measure);
-    observer.observe(viewport);
-    observer.observe(row);
-    return () => observer.disconnect();
-  }, [isStatic]);
 
   const updateNativeIndex = () => {
     const viewport = viewportRef.current;
@@ -256,60 +246,55 @@ export function Projects() {
     setActiveIndex((current) => (current === next ? current : next));
   };
 
+  const scrollToProject = (index: number) => {
+    const viewport = viewportRef.current;
+    const row = rowRef.current;
+    if (!viewport || !row) return;
+
+    const cards = row.querySelectorAll<HTMLElement>("[data-project-carriage]");
+    const target = cards.item(index);
+    if (!target) return;
+
+    const left = target.offsetLeft - (viewport.clientWidth - target.offsetWidth) / 2;
+    viewport.scrollTo({
+      left,
+      behavior: prefersReduced ? "auto" : "smooth",
+    });
+    setActiveIndex(index);
+  };
+
   const carriages = PROJECTS.map((project, index) => (
     <Carriage
       key={project.name}
       project={project}
       index={index}
       activeIndex={activeIndex}
-      settle={!isStatic}
+      settle={!prefersReduced}
     />
   ));
 
-  if (isStatic) {
-    return (
-      <Section id={meta.id}>
-        <div ref={trackRef}>
-          <ProjectHeading activeIndex={activeIndex} />
-          <div className="project-list-shell relative border-t border-border py-8">
-            <span aria-hidden className="absolute inset-x-0 top-8 border-t border-border" />
-            <div
-              ref={viewportRef}
-              className="project-native-scroll overflow-x-auto overscroll-x-contain"
-              role="region"
-              aria-label="Project gallery"
-              tabIndex={0}
-              onScroll={updateNativeIndex}
-            >
-              <div ref={rowRef} className="flex w-max gap-[4vw] px-[7vw] md:px-[12vw]">
-                {carriages}
-              </div>
-            </div>
-          </div>
-        </div>
-      </Section>
-    );
-  }
-
   return (
     <Section id={meta.id}>
-      <div
-        ref={trackRef}
-        data-project-rail
-        className="relative"
-        style={{ height: `${Math.max(PROJECTS.length, 1) * 100}dvh` }}
-      >
-        <div className="project-rail-pin flex flex-col overflow-hidden">
-          <ProjectHeading activeIndex={activeIndex} />
-          <div ref={viewportRef} className="relative min-h-0 flex-1 overflow-hidden">
-            <span aria-hidden className="absolute inset-x-0 top-0 border-t border-border" />
-            <motion.div
-              ref={rowRef}
-              className="absolute top-0 left-0 flex w-max gap-[4vw]"
-              style={{ x }}
-            >
+      <div data-cursor-rail>
+        <ProjectHeading
+          activeIndex={activeIndex}
+          onPrevious={() => scrollToProject(activeIndex - 1)}
+          onNext={() => scrollToProject(activeIndex + 1)}
+        />
+        <div className="project-list-shell relative border-t border-border py-8">
+          <span aria-hidden className="absolute inset-x-0 top-8 border-t border-border" />
+          <div
+            id="project-gallery"
+            ref={viewportRef}
+            className="project-native-scroll overflow-x-auto overscroll-x-contain"
+            role="region"
+            aria-label="Project gallery"
+            tabIndex={0}
+            onScroll={updateNativeIndex}
+          >
+            <div ref={rowRef} className="flex w-max gap-[4vw] px-[7vw] md:px-[12vw]">
               {carriages}
-            </motion.div>
+            </div>
           </div>
         </div>
       </div>

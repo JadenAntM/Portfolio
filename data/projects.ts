@@ -1,8 +1,3 @@
-/**
- * Project images remain deliberate placeholders until real screenshots arrive.
- * Their URLs use the site's own neutral palette rather than stock imagery.
- */
-
 export interface Project {
   name: string;
   subtitle?: string;
@@ -22,9 +17,6 @@ export interface Project {
   sourceCodeHref?: string;
   liveDemoHref?: string;
 }
-
-const PLACEHOLDER_IMAGE = (label: string) =>
-  `https://placehold.co/1280x800/111111/85857f/png?text=${label}`;
 
 export const PROJECTS: Project[] = [
   {
@@ -89,8 +81,8 @@ export const PROJECTS: Project[] = [
     name: "Fish Species Classifier",
     description:
       "TensorFlow/Keras CNN that distinguishes Brook Trout from Smallmouth Bass at 95% accuracy using augmented training data and Grad-CAM explanations.",
-    image: PLACEHOLDER_IMAGE("FISH_CLASSIFIER"),
-    alt: "Placeholder preview for the Fish Species Classifier",
+    image: "/assets/projects/fish-species-classifier.png",
+    alt: "Smallmouth bass used as an input image for the fish species classifier",
     stack: ["Python", "TensorFlow", "Keras"],
     href: "https://github.com/JadenAntM/Fish-Species-Classifier",
   },
