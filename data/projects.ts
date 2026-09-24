@@ -3,7 +3,7 @@ export interface Project {
   subtitle?: string;
   /** One line. What it does, not why it is exciting. */
   description: string;
-  image: string;
+  image?: string;
   /** Describes the image itself, not the project. */
   alt: string;
   stack: string[];
@@ -19,6 +19,31 @@ export interface Project {
 }
 
 export const PROJECTS: Project[] = [
+  {
+    name: "Riverwise",
+    subtitle: "Nova Scotia River Conditions",
+    description:
+      "Mobile-friendly dashboard combining measured river discharge, nearby weather, and a transparent experimental conditions score.",
+    image: "/assets/projects/riverwise.png",
+    alt: "Riverwise dashboard showing Nova Scotia river conditions and a measured discharge chart",
+    stack: ["Next.js", "TypeScript", "FastAPI", "PostgreSQL", "Python"],
+    attribution:
+      "Independent project · Built the ingestion pipeline, API, scoring system, and responsive dashboard end to end.",
+    details: [
+      {
+        label: "Data pipeline",
+        value:
+          "Separates hourly Water Survey of Canada and Open-Meteo ingestion from web requests, preserving source timestamps and visible data gaps in PostgreSQL.",
+      },
+      {
+        label: "Coverage",
+        value:
+          "Tracks six verified Nova Scotia gauges with seven- and 30-day score history, reliability reporting, and responsive station views.",
+      },
+    ],
+    sourceCodeHref: "https://github.com/JadenAntM/Riverwise",
+    liveDemoHref: "https://riverwise.jadenmoore.dev/",
+  },
   {
     name: "PocketSpotter",
     subtitle: "AI Fitness Form Coach",

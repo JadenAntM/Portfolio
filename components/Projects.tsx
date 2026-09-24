@@ -2,7 +2,12 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { useRef, useState } from "react";
+import {
+  type PointerEvent as ReactPointerEvent,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { ArrowLink } from "@/components/ArrowLink";
 import { HeadingReveal } from "@/components/HeadingReveal";
 import { GridRow, Section, SectionMarker, headingId } from "@/components/Section";
@@ -34,14 +39,16 @@ function ProjectCard({
       className={`project-card group grid overflow-hidden rounded-sm border border-border bg-bg transition-colors hover:border-accent focus-within:border-accent ${project.details ? "project-card-detailed" : ""}`}
     >
       <div className="project-card-media relative min-h-0 overflow-hidden border-b border-border bg-surface md:border-r md:border-b-0">
-        <Image
-          src={project.image}
-          alt={project.alt}
-          fill
-          priority={PROJECTS.indexOf(project) === 0}
-          sizes="(min-width: 48rem) 40vw, 86vw"
-          className="project-card-image object-contain"
-        />
+        {project.image ? (
+          <Image
+            src={project.image}
+            alt={project.alt}
+            fill
+            priority={PROJECTS.indexOf(project) === 0}
+            sizes="(min-width: 48rem) 40vw, 86vw"
+            className="project-card-image object-contain"
+          />
+        ) : null}
         <span className="mono absolute top-3 left-3 border border-border bg-bg px-2 py-1 text-micro text-fg-tertiary">
           PROJECT_{pad(PROJECTS.indexOf(project) + 1)}
         </span>
@@ -225,17 +232,47 @@ function ProjectHeading({
 export function Projects() {
   const viewportRef = useRef<HTMLDivElement>(null);
   const rowRef = useRef<HTMLDivElement>(null);
+  const pointerGestureRef = useRef<{
+    pointerId: number;
+    startX: number;
+    startY: number;
+    startScrollLeft: number;
+    axis: "x" | "y" | null;
+  } | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const prefersReduced = usePrefersReducedMotion();
 
-  const updateNativeIndex = () => {
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+
+    const lockHorizontalWheel = (event: WheelEvent) => {
+      if (Math.abs(event.deltaX) <= Math.abs(event.deltaY)) return;
+
+      event.preventDefault();
+      const deltaScale =
+        event.deltaMode === WheelEvent.DOM_DELTA_LINE
+          ? 16
+          : event.deltaMode === WheelEvent.DOM_DELTA_PAGE
+            ? viewport.clientWidth
+            : 1;
+      viewport.scrollLeft += event.deltaX * deltaScale;
+    };
+
+    viewport.addEventListener("wheel", lockHorizontalWheel, { passive: false });
+    return () => viewport.removeEventListener("wheel", lockHorizontalWheel);
+  }, []);
+
+  const getNearestProjectIndex = () => {
     const viewport = viewportRef.current;
     const row = rowRef.current;
-    if (!viewport || !row) return;
+    if (!viewport || !row) return null;
 
     const center = viewport.scrollLeft + viewport.clientWidth / 2;
     const cards = [...row.querySelectorAll<HTMLElement>("[data-project-carriage]")];
-    const next = cards.reduce((nearest, card, index) => {
+    if (cards.length === 0) return null;
+
+    return cards.reduce((nearest, card, index) => {
       const cardCenter = card.offsetLeft + card.offsetWidth / 2;
       const nearestCard = cards[nearest];
       const nearestCenter = nearestCard.offsetLeft + nearestCard.offsetWidth / 2;
@@ -243,6 +280,11 @@ export function Projects() {
         ? index
         : nearest;
     }, 0);
+  };
+
+  const updateNativeIndex = () => {
+    const next = getNearestProjectIndex();
+    if (next === null) return;
     setActiveIndex((current) => (current === next ? current : next));
   };
 
@@ -261,6 +303,52 @@ export function Projects() {
       behavior: prefersReduced ? "auto" : "smooth",
     });
     setActiveIndex(index);
+  };
+
+  const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (event.pointerType !== "touch") return;
+
+    pointerGestureRef.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      startScrollLeft: event.currentTarget.scrollLeft,
+      axis: null,
+    };
+  };
+
+  const handlePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const gesture = pointerGestureRef.current;
+    if (!gesture || gesture.pointerId !== event.pointerId) return;
+
+    const deltaX = event.clientX - gesture.startX;
+    const deltaY = event.clientY - gesture.startY;
+
+    if (gesture.axis === null) {
+      if (Math.max(Math.abs(deltaX), Math.abs(deltaY)) < 6) return;
+      gesture.axis = Math.abs(deltaX) > Math.abs(deltaY) ? "x" : "y";
+      if (gesture.axis === "x") {
+        event.currentTarget.setPointerCapture(event.pointerId);
+      }
+    }
+
+    if (gesture.axis !== "x") return;
+    event.preventDefault();
+    event.currentTarget.scrollLeft = gesture.startScrollLeft - deltaX;
+  };
+
+  const finishPointerGesture = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const gesture = pointerGestureRef.current;
+    if (!gesture || gesture.pointerId !== event.pointerId) return;
+
+    pointerGestureRef.current = null;
+    if (gesture.axis !== "x") return;
+
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    const next = getNearestProjectIndex();
+    if (next !== null) scrollToProject(next);
   };
 
   const carriages = PROJECTS.map((project, index) => (
@@ -289,12 +377,45 @@ export function Projects() {
             className="project-native-scroll overflow-x-auto overscroll-x-contain"
             role="region"
             aria-label="Project gallery"
+            data-lenis-prevent
+            data-project-axis-lock="horizontal"
             tabIndex={0}
             onScroll={updateNativeIndex}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={finishPointerGesture}
+            onPointerCancel={finishPointerGesture}
           >
             <div ref={rowRef} className="flex w-max gap-[4vw] px-[7vw] md:px-[12vw]">
               {carriages}
             </div>
+          </div>
+          <div
+            className="mt-5 flex justify-center"
+            role="group"
+            aria-label="Choose a project"
+            data-project-dots
+          >
+            {PROJECTS.map((project, index) => (
+              <button
+                key={project.name}
+                type="button"
+                className="group/dot grid size-8 place-items-center"
+                aria-label={`Show project ${index + 1}: ${project.name}`}
+                aria-current={activeIndex === index ? "true" : undefined}
+                aria-controls="project-gallery"
+                onClick={() => scrollToProject(index)}
+              >
+                <span
+                  aria-hidden
+                  className={`size-2 rounded-full border transition-[border-color,background-color,transform] group-hover/dot:border-accent ${
+                    activeIndex === index
+                      ? "scale-125 border-accent bg-accent"
+                      : "border-border-hi bg-transparent"
+                  }`}
+                />
+              </button>
+            ))}
           </div>
         </div>
       </div>

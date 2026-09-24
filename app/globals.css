@@ -333,6 +333,9 @@
     scrollbar-width: thin;
     scrollbar-color: var(--color-border-hi) transparent;
     scroll-snap-type: x mandatory;
+    /* Vertical intent can still move through the page; horizontal touch drag
+       is direction-locked by Projects and cannot leak into vertical scroll. */
+    touch-action: pan-y pinch-zoom;
   }
 
   @media (min-width: 64rem) {

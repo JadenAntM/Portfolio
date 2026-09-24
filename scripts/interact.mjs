@@ -257,6 +257,13 @@ const projectGalleryStart = await page.evaluate(() => {
   return {
     cards: cards.length,
     controls: controls.length,
+    dots: document.querySelectorAll('[data-project-dots] button').length,
+    activeDot: document.querySelector('[data-project-dots] [aria-current="true"]')
+      ?.getAttribute("aria-label"),
+    directionalTouch:
+      getComputedStyle(list).touchAction.includes("pan-y") &&
+      list.getAttribute("data-project-axis-lock") === "horizontal",
+    lenisPrevented: list.hasAttribute("data-lenis-prevent"),
     firstDelta: Math.abs(first.left + first.width / 2 - window.innerWidth / 2),
     previousDisabled: controls[0]?.disabled,
     nextDisabled: controls[1]?.disabled,
@@ -288,15 +295,19 @@ const projectGalleryNext = await page.evaluate(() => {
 check(
   "projects: explicit controls center cards without a pinned or nested scroll region",
   projectGalleryStart &&
-    projectGalleryStart.cards === 3 &&
+    projectGalleryStart.cards === 4 &&
     projectGalleryStart.controls === 2 &&
+    projectGalleryStart.dots === 4 &&
+    projectGalleryStart.activeDot === "Show project 1: Riverwise" &&
+    projectGalleryStart.directionalTouch &&
+    projectGalleryStart.lenisPrevented &&
     projectGalleryStart.firstDelta < 2 &&
     projectGalleryStart.previousDisabled &&
     !projectGalleryStart.nextDisabled &&
     projectGalleryStart.noPinnedRail &&
     projectGalleryStart.copyOverflow.every((value) => value === "visible") &&
     projectGalleryNext.secondDelta < 2 &&
-    projectGalleryNext.index === "02/03" &&
+    projectGalleryNext.index === "02/04" &&
     !projectGalleryNext.previousDisabled &&
     !projectGalleryNext.nextDisabled,
   JSON.stringify({ start: projectGalleryStart, next: projectGalleryNext }),
@@ -343,8 +354,8 @@ check(
   `lenis=${scrollEnhancements.lenis}, progress=${scrollEnhancements.progressScale.toFixed(2)}`,
 );
 check(
-  "headings: all 4 section masks wipe clear",
-  scrollEnhancements.masks === 4 && scrollEnhancements.masksRevealed,
+  "headings: all 5 section masks wipe clear",
+  scrollEnhancements.masks === 5 && scrollEnhancements.masksRevealed,
   `${scrollEnhancements.masks} masks, revealed=${scrollEnhancements.masksRevealed}`,
 );
 
@@ -362,7 +373,9 @@ check(
       pin: document.querySelectorAll("[data-project-rail]").length,
       list: list ? 1 : 0,
       snap: list ? getComputedStyle(list).scrollSnapType : "none",
+      touchAction: list ? getComputedStyle(list).touchAction : "auto",
       cards: document.querySelectorAll("#projects [data-project-carriage]").length,
+      dots: document.querySelectorAll("#projects [data-project-dots] button").length,
       controls: document.querySelectorAll('#projects [aria-label="Project controls"] button')
         .length,
       cue: [...document.querySelectorAll("#projects p")].some(
@@ -380,7 +393,9 @@ check(
     mobileProjects.pin === 0 &&
       mobileProjects.list === 1 &&
       mobileProjects.snap.startsWith("x") &&
-      mobileProjects.cards === 3 &&
+      mobileProjects.touchAction.includes("pan-y") &&
+      mobileProjects.cards === 4 &&
+      mobileProjects.dots === 4 &&
       mobileProjects.controls === 2 &&
       mobileProjects.cue &&
       mobileProjects.labelled &&
@@ -488,7 +503,7 @@ check(
     fallback.pins === 0 &&
       fallback.projectRail === 0 &&
       fallback.nativeProjectList === 1 &&
-      fallback.items === 5 &&
+      fallback.items === 6 &&
       fallback.masks === 0 &&
       fallback.allOpaque,
     `${fallback.pins} pins, ${fallback.items} items visible, ${fallback.masks} masks`,
