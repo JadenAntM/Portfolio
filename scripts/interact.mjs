@@ -263,7 +263,9 @@ const projectGalleryStart = await page.evaluate(() => {
     directionalTouch:
       getComputedStyle(list).touchAction.includes("pan-y") &&
       list.getAttribute("data-project-axis-lock") === "horizontal",
-    lenisPrevented: list.hasAttribute("data-lenis-prevent"),
+    wheelIsolated:
+      !list.hasAttribute("data-lenis-prevent") &&
+      list.getAttribute("data-project-wheel") === "horizontal",
     firstDelta: Math.abs(first.left + first.width / 2 - window.innerWidth / 2),
     previousDisabled: controls[0]?.disabled,
     nextDisabled: controls[1]?.disabled,
@@ -275,6 +277,51 @@ const projectGalleryStart = await page.evaluate(() => {
     }),
   };
 });
+
+const projectGalleryBox = await page.evaluate(() => {
+  const list = document.querySelector(".project-native-scroll");
+  if (!list) return null;
+  list.scrollIntoView({ block: "center", behavior: "instant" });
+  const rect = list.getBoundingClientRect();
+  return {
+    x: rect.left + rect.width / 2,
+    y: rect.top + Math.min(rect.height / 2, window.innerHeight / 3),
+  };
+});
+
+let projectWheel = null;
+if (projectGalleryBox) {
+  await page.mouse.move(projectGalleryBox.x, projectGalleryBox.y);
+  const before = await page.evaluate(() => ({
+    pageY: window.scrollY,
+    railX: document.querySelector(".project-native-scroll")?.scrollLeft ?? 0,
+  }));
+  await page.mouse.wheel({ deltaY: 900 });
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  const after = await page.evaluate(() => ({
+    pageY: window.scrollY,
+    railX: document.querySelector(".project-native-scroll")?.scrollLeft ?? 0,
+    index: document.querySelector("[data-project-index]")?.textContent?.trim(),
+  }));
+  projectWheel = { before, after };
+
+  await page.evaluate(() => {
+    document.querySelector(".project-native-scroll")?.scrollTo({
+      left: 0,
+      behavior: "instant",
+    });
+  });
+  await new Promise((resolve) => setTimeout(resolve, 100));
+}
+
+check(
+  "projects: mouse wheel moves the rail without moving the page",
+  projectWheel &&
+    projectWheel.after.pageY === projectWheel.before.pageY &&
+    projectWheel.after.railX > projectWheel.before.railX + 500 &&
+    projectWheel.after.index === "02/04",
+  JSON.stringify(projectWheel),
+);
 
 await page.click('[aria-label="Next project"]');
 await new Promise((resolve) => setTimeout(resolve, 650));
@@ -300,7 +347,7 @@ check(
     projectGalleryStart.dots === 4 &&
     projectGalleryStart.activeDot === "Show project 1: Riverwise" &&
     projectGalleryStart.directionalTouch &&
-    projectGalleryStart.lenisPrevented &&
+    projectGalleryStart.wheelIsolated &&
     projectGalleryStart.firstDelta < 2 &&
     projectGalleryStart.previousDisabled &&
     !projectGalleryStart.nextDisabled &&

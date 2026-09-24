@@ -338,6 +338,12 @@
     touch-action: pan-y pinch-zoom;
   }
 
+  /* Wheel/trackpad deltas need to accumulate freely before the nearest card
+     is selected. Projects removes this class and restores snapping on settle. */
+  .project-native-scroll.project-wheel-active {
+    scroll-snap-type: none;
+  }
+
   @media (min-width: 64rem) {
     .project-native-scroll {
       /* Keep outgoing cards from drawing underneath the fixed section rail. */

@@ -245,23 +245,78 @@ export function Projects() {
   useEffect(() => {
     const viewport = viewportRef.current;
     if (!viewport) return;
+    let wheelEndTimer: ReturnType<typeof setTimeout> | undefined;
 
-    const lockHorizontalWheel = (event: WheelEvent) => {
-      if (Math.abs(event.deltaX) <= Math.abs(event.deltaY)) return;
+    const settleWheel = () => {
+      viewport.classList.remove("project-wheel-active");
 
-      event.preventDefault();
+      const row = rowRef.current;
+      if (!row) return;
+      const cards = [...row.querySelectorAll<HTMLElement>("[data-project-carriage]")];
+      if (cards.length === 0) return;
+
+      const center = viewport.scrollLeft + viewport.clientWidth / 2;
+      const next = cards.reduce((nearest, card, index) => {
+        const cardCenter = card.offsetLeft + card.offsetWidth / 2;
+        const nearestCard = cards[nearest];
+        const nearestCenter = nearestCard.offsetLeft + nearestCard.offsetWidth / 2;
+        return Math.abs(cardCenter - center) < Math.abs(nearestCenter - center)
+          ? index
+          : nearest;
+      }, 0);
+      const target = cards[next];
+      const left = target.offsetLeft - (viewport.clientWidth - target.offsetWidth) / 2;
+
+      viewport.scrollTo({
+        left,
+        behavior: prefersReduced ? "auto" : "smooth",
+      });
+      setActiveIndex(next);
+    };
+
+    const translateWheelToRail = (event: WheelEvent) => {
+      const useHorizontalDelta = Math.abs(event.deltaX) > Math.abs(event.deltaY);
+      const primaryDelta = useHorizontalDelta ? event.deltaX : event.deltaY;
+      if (primaryDelta === 0) return;
+
       const deltaScale =
         event.deltaMode === WheelEvent.DOM_DELTA_LINE
           ? 16
           : event.deltaMode === WheelEvent.DOM_DELTA_PAGE
             ? viewport.clientWidth
             : 1;
-      viewport.scrollLeft += event.deltaX * deltaScale;
+      const delta = primaryDelta * deltaScale * (useHorizontalDelta ? 1 : 1.25);
+      const maxScrollLeft = viewport.scrollWidth - viewport.clientWidth;
+      const atStart = viewport.scrollLeft <= 1;
+      const atEnd = viewport.scrollLeft >= maxScrollLeft - 1;
+
+      // At either end, return vertical wheel input to the page so the gallery
+      // never traps someone who is trying to continue down or back up.
+      if ((delta < 0 && atStart) || (delta > 0 && atEnd)) {
+        viewport.classList.remove("project-wheel-active");
+        if (wheelEndTimer) clearTimeout(wheelEndTimer);
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+      viewport.classList.add("project-wheel-active");
+      viewport.scrollLeft = Math.min(
+        Math.max(viewport.scrollLeft + delta, 0),
+        maxScrollLeft,
+      );
+
+      if (wheelEndTimer) clearTimeout(wheelEndTimer);
+      wheelEndTimer = setTimeout(settleWheel, 140);
     };
 
-    viewport.addEventListener("wheel", lockHorizontalWheel, { passive: false });
-    return () => viewport.removeEventListener("wheel", lockHorizontalWheel);
-  }, []);
+    viewport.addEventListener("wheel", translateWheelToRail, { passive: false });
+    return () => {
+      viewport.removeEventListener("wheel", translateWheelToRail);
+      viewport.classList.remove("project-wheel-active");
+      if (wheelEndTimer) clearTimeout(wheelEndTimer);
+    };
+  }, [prefersReduced]);
 
   const getNearestProjectIndex = () => {
     const viewport = viewportRef.current;
@@ -377,8 +432,8 @@ export function Projects() {
             className="project-native-scroll overflow-x-auto overscroll-x-contain"
             role="region"
             aria-label="Project gallery"
-            data-lenis-prevent
             data-project-axis-lock="horizontal"
+            data-project-wheel="horizontal"
             tabIndex={0}
             onScroll={updateNativeIndex}
             onPointerDown={handlePointerDown}
