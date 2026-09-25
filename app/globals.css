@@ -349,6 +349,39 @@
       /* Keep outgoing cards from drawing underneath the fixed section rail. */
       clip-path: inset(0 0 0 var(--track-rail));
     }
+
+    .project-desktop-layout {
+      grid-template-columns: minmax(15rem, 0.34fr) minmax(0, 1fr);
+      align-items: start;
+      gap: clamp(2rem, 3vw, 3rem);
+      margin-left: var(--track-rail);
+      padding: 3rem clamp(2rem, 4vw, 4rem) 5rem;
+    }
+
+    .project-desktop-index {
+      position: sticky;
+      top: 2rem;
+      overflow: hidden;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+    }
+
+    .project-index-button::before {
+      content: "";
+      position: absolute;
+      inset-block: 0;
+      left: 0;
+      width: 2px;
+      background: var(--color-accent);
+      opacity: 0;
+      transform: scaleY(0.35);
+      transition: opacity 180ms ease, transform 240ms ease;
+    }
+
+    .project-index-button[aria-selected="true"]::before {
+      opacity: 1;
+      transform: scaleY(1);
+    }
   }
 
   @media (min-width: 48rem) {
@@ -359,6 +392,17 @@
 
     .project-card-media {
       aspect-ratio: auto;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .project-card-inspector {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: auto auto;
+    }
+
+    .project-card-inspector .project-card-media {
+      aspect-ratio: 16 / 9;
     }
   }
 

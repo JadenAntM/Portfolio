@@ -246,121 +246,107 @@ check(
   JSON.stringify(experienceLayout),
 );
 
-/* -- 2d. Projects uses explicit controls without scroll-jacking ----------- */
-const projectGalleryStart = await page.evaluate(() => {
-  const list = document.querySelector(".project-native-scroll");
-  const cards = [...document.querySelectorAll("[data-project-carriage]")];
+/* -- 2d. Desktop Projects uses an index + inspection panel ---------------- */
+const desktopProjectsStart = await page.evaluate(() => {
+  const desktop = document.querySelector("[data-project-desktop]");
+  const mobile = document.querySelector("[data-project-mobile]");
+  const tabs = [...document.querySelectorAll('[role="tab"]')];
   const controls = [...document.querySelectorAll('[aria-label="Project controls"] button')];
-  if (!list || cards.length === 0) return null;
-
-  const first = cards[0].getBoundingClientRect();
   return {
-    cards: cards.length,
+    desktopDisplay: desktop ? getComputedStyle(desktop).display : "missing",
+    mobileDisplay: mobile ? getComputedStyle(mobile).display : "missing",
+    tabs: tabs.length,
+    selected: tabs.find((tab) => tab.getAttribute("aria-selected") === "true")
+      ?.textContent?.trim(),
+    panelTitle: document.querySelector("[data-project-panel] h3")?.textContent?.trim(),
+    index: document.querySelector("[data-project-index]")?.textContent?.trim(),
     controls: controls.length,
-    dots: document.querySelectorAll('[data-project-dots] button').length,
-    activeDot: document.querySelector('[data-project-dots] [aria-current="true"]')
-      ?.getAttribute("aria-label"),
-    directionalTouch:
-      getComputedStyle(list).touchAction.includes("pan-y") &&
-      list.getAttribute("data-project-axis-lock") === "horizontal",
-    wheelIsolated:
-      !list.hasAttribute("data-lenis-prevent") &&
-      list.getAttribute("data-project-wheel") === "horizontal",
-    firstDelta: Math.abs(first.left + first.width / 2 - window.innerWidth / 2),
     previousDisabled: controls[0]?.disabled,
     nextDisabled: controls[1]?.disabled,
-    noPinnedRail:
-      document.querySelectorAll("[data-project-rail], .project-rail-pin").length === 0,
-    copyOverflow: cards.map((card) => {
-      const copy = card.querySelector(".project-card-copy");
-      return copy ? getComputedStyle(copy).overflowY : "missing";
-    }),
   };
 });
 
-const projectGalleryBox = await page.evaluate(() => {
-  const list = document.querySelector(".project-native-scroll");
-  if (!list) return null;
-  list.scrollIntoView({ block: "center", behavior: "instant" });
-  const rect = list.getBoundingClientRect();
+await page.click('[aria-label="Next project"]');
+await new Promise((resolve) => setTimeout(resolve, 350));
+
+const desktopProjectsNext = await page.evaluate(() => ({
+  selected: [...document.querySelectorAll('[role="tab"]')]
+    .find((tab) => tab.getAttribute("aria-selected") === "true")
+    ?.textContent?.trim(),
+  panelTitle: document.querySelector("[data-project-panel] h3")?.textContent?.trim(),
+  index: document.querySelector("[data-project-index]")?.textContent?.trim(),
+  previousDisabled: document.querySelector('[aria-label="Previous project"]')?.disabled,
+  nextDisabled: document.querySelector('[aria-label="Next project"]')?.disabled,
+}));
+
+check(
+  "projects: desktop uses a four-item index and focused inspection panel",
+  desktopProjectsStart.desktopDisplay === "grid" &&
+    desktopProjectsStart.mobileDisplay === "none" &&
+    desktopProjectsStart.tabs === 4 &&
+    desktopProjectsStart.selected?.includes("Riverwise") &&
+    desktopProjectsStart.panelTitle === "Riverwise" &&
+    desktopProjectsStart.index === "01/04" &&
+    desktopProjectsStart.controls === 2 &&
+    desktopProjectsStart.previousDisabled &&
+    !desktopProjectsStart.nextDisabled &&
+    desktopProjectsNext.selected?.includes("PocketSpotter") &&
+    desktopProjectsNext.panelTitle === "PocketSpotter" &&
+    desktopProjectsNext.index === "02/04" &&
+    !desktopProjectsNext.previousDisabled &&
+    !desktopProjectsNext.nextDisabled,
+  JSON.stringify({ start: desktopProjectsStart, next: desktopProjectsNext }),
+);
+
+await page.focus("#project-tab-1");
+await page.keyboard.press("ArrowDown");
+await new Promise((resolve) => setTimeout(resolve, 350));
+
+const keyboardProject = await page.evaluate(() => ({
+  activeId: document.activeElement?.id,
+  panelTitle: document.querySelector("[data-project-panel] h3")?.textContent?.trim(),
+  index: document.querySelector("[data-project-index]")?.textContent?.trim(),
+}));
+
+check(
+  "projects: desktop index supports arrow-key navigation",
+  keyboardProject.activeId === "project-tab-2" &&
+    keyboardProject.panelTitle === "VIAC" &&
+    keyboardProject.index === "03/04",
+  JSON.stringify(keyboardProject),
+);
+
+const desktopProjectBox = await page.evaluate(() => {
+  const layout = document.querySelector("[data-project-desktop]");
+  if (!layout) return null;
+  layout.scrollIntoView({ block: "center", behavior: "instant" });
+  const rect = layout.getBoundingClientRect();
   return {
-    x: rect.left + rect.width / 2,
-    y: rect.top + Math.min(rect.height / 2, window.innerHeight / 3),
+    x: rect.right - rect.width / 4,
+    y: Math.max(20, Math.min(window.innerHeight - 20, rect.top + 250)),
   };
 });
 
-let projectWheel = null;
-if (projectGalleryBox) {
-  await page.mouse.move(projectGalleryBox.x, projectGalleryBox.y);
-  const before = await page.evaluate(() => ({
-    pageY: window.scrollY,
-    railX: document.querySelector(".project-native-scroll")?.scrollLeft ?? 0,
-  }));
-  await page.mouse.wheel({ deltaY: 900 });
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  const after = await page.evaluate(() => ({
-    pageY: window.scrollY,
-    railX: document.querySelector(".project-native-scroll")?.scrollLeft ?? 0,
-    index: document.querySelector("[data-project-index]")?.textContent?.trim(),
-  }));
-  projectWheel = { before, after };
-
-  await page.evaluate(() => {
-    document.querySelector(".project-native-scroll")?.scrollTo({
-      left: 0,
-      behavior: "instant",
-    });
-  });
-  await new Promise((resolve) => setTimeout(resolve, 100));
+let desktopWheel = null;
+if (desktopProjectBox) {
+  await page.mouse.move(desktopProjectBox.x, desktopProjectBox.y);
+  const before = await page.evaluate(() => window.scrollY);
+  await page.mouse.wheel({ deltaY: 500 });
+  await new Promise((resolve) => setTimeout(resolve, 700));
+  const after = await page.evaluate(() => window.scrollY);
+  desktopWheel = { before, after };
 }
 
 check(
-  "projects: mouse wheel moves the rail without moving the page",
-  projectWheel &&
-    projectWheel.after.pageY === projectWheel.before.pageY &&
-    projectWheel.after.railX > projectWheel.before.railX + 500 &&
-    projectWheel.after.index === "02/04",
-  JSON.stringify(projectWheel),
-);
-
-await page.click('[aria-label="Next project"]');
-await new Promise((resolve) => setTimeout(resolve, 650));
-
-const projectGalleryNext = await page.evaluate(() => {
-  const cards = [...document.querySelectorAll("[data-project-carriage]")];
-  const second = cards[1]?.getBoundingClientRect();
-  return {
-    secondDelta: second
-      ? Math.abs(second.left + second.width / 2 - window.innerWidth / 2)
-      : Number.POSITIVE_INFINITY,
-    index: document.querySelector("[data-project-index]")?.textContent?.trim(),
-    previousDisabled: document.querySelector('[aria-label="Previous project"]')?.disabled,
-    nextDisabled: document.querySelector('[aria-label="Next project"]')?.disabled,
-  };
-});
-
-check(
-  "projects: explicit controls center cards without a pinned or nested scroll region",
-  projectGalleryStart &&
-    projectGalleryStart.cards === 4 &&
-    projectGalleryStart.controls === 2 &&
-    projectGalleryStart.dots === 4 &&
-    projectGalleryStart.activeDot === "Show project 1: Riverwise" &&
-    projectGalleryStart.directionalTouch &&
-    projectGalleryStart.wheelIsolated &&
-    projectGalleryStart.firstDelta < 2 &&
-    projectGalleryStart.previousDisabled &&
-    !projectGalleryStart.nextDisabled &&
-    projectGalleryStart.noPinnedRail &&
-    projectGalleryStart.copyOverflow.every((value) => value === "visible") &&
-    projectGalleryNext.secondDelta < 2 &&
-    projectGalleryNext.index === "02/04" &&
-    !projectGalleryNext.previousDisabled &&
-    !projectGalleryNext.nextDisabled,
-  JSON.stringify({ start: projectGalleryStart, next: projectGalleryNext }),
+  "projects: desktop wheel remains native vertical page scrolling",
+  desktopWheel && desktopWheel.after > desktopWheel.before + 100,
+  JSON.stringify(desktopWheel),
 );
 
 /* -- 2e. Lenis source, page progress, and heading masks ------------------- */
+// Start from a fresh page so the deliberate wheel test above cannot leave
+// Lenis momentum competing with the heading-by-heading viewport checks.
+await page.goto(url, { waitUntil: "networkidle0" });
 const scrollEnhancements = await page.evaluate(async () => {
   const nextFrame = () => new Promise((resolve) => requestAnimationFrame(resolve));
   const masks = [...document.querySelectorAll("[data-heading-mask]")];
@@ -526,10 +512,12 @@ check(
     `x = ${first.join(", ")}`,
   );
 
-  // Not "the same layout, animated slower": the pin is gone and every item is
-  // in normal flow at full opacity.
+  // Not "the same layout, animated slower": the pin is gone and every visible
+  // item is in normal flow at full opacity.
   const fallback = await rmPage.evaluate(() => {
-    const items = [...document.querySelectorAll("#experience h3, #projects h3")];
+    const items = [...document.querySelectorAll("#experience h3, #projects h3")].filter(
+      (item) => item.getClientRects().length > 0,
+    );
     return {
       pins: document.querySelectorAll(".stage-pin, .project-rail-pin").length,
       projectRail: document.querySelectorAll("[data-project-rail]").length,
@@ -550,7 +538,7 @@ check(
     fallback.pins === 0 &&
       fallback.projectRail === 0 &&
       fallback.nativeProjectList === 1 &&
-      fallback.items === 6 &&
+      fallback.items === 3 &&
       fallback.masks === 0 &&
       fallback.allOpaque,
     `${fallback.pins} pins, ${fallback.items} items visible, ${fallback.masks} masks`,

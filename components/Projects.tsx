@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import {
+  type KeyboardEvent as ReactKeyboardEvent,
   type PointerEvent as ReactPointerEvent,
   useEffect,
   useRef,
@@ -30,15 +31,23 @@ function pad(value: number) {
 function ProjectCard({
   project,
   linkTabIndex,
+  variant = "carousel",
 }: {
   project: Project;
   linkTabIndex?: number;
+  variant?: "carousel" | "inspector";
 }) {
   return (
     <article
-      className={`project-card group grid overflow-hidden rounded-sm border border-border bg-bg transition-colors hover:border-accent focus-within:border-accent ${project.details ? "project-card-detailed" : ""}`}
+      className={`project-card group grid overflow-hidden rounded-sm border border-border bg-bg transition-colors hover:border-accent focus-within:border-accent ${variant === "inspector" ? "project-card-inspector" : ""} ${project.details ? "project-card-detailed" : ""}`}
     >
-      <div className="project-card-media relative min-h-0 overflow-hidden border-b border-border bg-surface md:border-r md:border-b-0">
+      <div
+        className={`project-card-media relative min-h-0 overflow-hidden border-border bg-surface ${
+          variant === "inspector"
+            ? "border-b"
+            : "border-b md:border-r md:border-b-0"
+        }`}
+      >
         {project.image ? (
           <Image
             src={project.image}
@@ -153,7 +162,7 @@ function Carriage({
       />
       <ProjectCard
         project={project}
-        linkTabIndex={settle && activeIndex !== index ? -1 : undefined}
+        linkTabIndex={activeIndex !== index ? -1 : undefined}
       />
     </motion.div>
   );
@@ -192,8 +201,8 @@ function ProjectHeading({
 
           <div className="mt-5 flex items-center justify-between gap-4">
             <p className="mono text-label uppercase text-fg-tertiary">
-              <span className="sm:hidden">Swipe or use controls</span>
-              <span className="hidden sm:inline">Drag or use controls</span>
+              <span className="lg:hidden">Swipe or use controls</span>
+              <span className="hidden lg:inline">Select a project</span>
             </p>
 
             <div
@@ -206,7 +215,7 @@ function ProjectHeading({
                 onClick={onPrevious}
                 disabled={activeIndex === 0}
                 aria-label="Previous project"
-                aria-controls="project-gallery"
+                aria-controls="project-gallery project-inspector"
                 className="mono grid size-11 place-items-center rounded-sm border border-border text-mono-sm text-fg transition-[border-color,color] hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:text-fg-tertiary disabled:opacity-35 disabled:hover:border-border"
               >
                 <span aria-hidden>←</span>
@@ -216,7 +225,7 @@ function ProjectHeading({
                 onClick={onNext}
                 disabled={activeIndex === PROJECTS.length - 1}
                 aria-label="Next project"
-                aria-controls="project-gallery"
+                aria-controls="project-gallery project-inspector"
                 className="mono grid size-11 place-items-center rounded-sm border border-border text-mono-sm text-fg transition-[border-color,color] hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:text-fg-tertiary disabled:opacity-35 disabled:hover:border-border"
               >
                 <span aria-hidden>→</span>
@@ -226,6 +235,111 @@ function ProjectHeading({
         </div>
       }
     />
+  );
+}
+
+function DesktopProjectInspector({
+  activeIndex,
+  onSelect,
+  prefersReduced,
+}: {
+  activeIndex: number;
+  onSelect: (index: number) => void;
+  prefersReduced: boolean;
+}) {
+  const activeProject = PROJECTS[activeIndex];
+
+  const handleTabKey = (
+    event: ReactKeyboardEvent<HTMLButtonElement>,
+    index: number,
+  ) => {
+    let next = index;
+    if (event.key === "ArrowDown" || event.key === "ArrowRight") {
+      next = (index + 1) % PROJECTS.length;
+    } else if (event.key === "ArrowUp" || event.key === "ArrowLeft") {
+      next = (index - 1 + PROJECTS.length) % PROJECTS.length;
+    } else if (event.key === "Home") {
+      next = 0;
+    } else if (event.key === "End") {
+      next = PROJECTS.length - 1;
+    } else {
+      return;
+    }
+
+    event.preventDefault();
+    onSelect(next);
+    document.getElementById(`project-tab-${next}`)?.focus();
+  };
+
+  return (
+    <div className="project-desktop-layout hidden lg:grid" data-project-desktop>
+      <div className="project-desktop-index">
+        <p className="mono border-b border-border px-5 py-4 text-micro uppercase text-fg-tertiary">
+          Project index // {pad(PROJECTS.length)} entries
+        </p>
+        <div role="tablist" aria-label="Projects" aria-orientation="vertical">
+          {PROJECTS.map((project, index) => {
+            const selected = activeIndex === index;
+            return (
+              <button
+                id={`project-tab-${index}`}
+                key={project.name}
+                type="button"
+                role="tab"
+                aria-selected={selected}
+                aria-controls="project-inspector"
+                tabIndex={selected ? 0 : -1}
+                onClick={() => onSelect(index)}
+                onMouseEnter={() => onSelect(index)}
+                onFocus={() => onSelect(index)}
+                onKeyDown={(event) => handleTabKey(event, index)}
+                className={`project-index-button group relative grid w-full grid-cols-[2.25rem_minmax(0,1fr)_auto] items-center gap-3 border-b border-border px-5 py-5 text-left transition-colors ${
+                  selected ? "bg-surface" : "bg-bg hover:bg-surface"
+                }`}
+              >
+                <span
+                  aria-hidden
+                  className={`mono text-micro ${selected ? "text-accent" : "text-fg-tertiary"}`}
+                >
+                  {pad(index + 1)}
+                </span>
+                <span className="min-w-0">
+                  <span
+                    className={`block text-base transition-colors ${selected ? "text-fg" : "text-fg-secondary group-hover:text-fg"}`}
+                  >
+                    {project.name}
+                  </span>
+                  {project.subtitle ? (
+                    <span className="mono mt-1 block truncate text-micro text-fg-tertiary">
+                      {project.subtitle}
+                    </span>
+                  ) : null}
+                </span>
+                <span
+                  aria-hidden
+                  className={`mono transition-[color,transform] ${selected ? "translate-x-0 text-accent" : "-translate-x-1 text-fg-tertiary group-hover:translate-x-0"}`}
+                >
+                  →
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <motion.div
+        id="project-inspector"
+        key={activeProject.name}
+        role="tabpanel"
+        aria-labelledby={`project-tab-${activeIndex}`}
+        data-project-panel
+        initial={prefersReduced ? false : { opacity: 0, x: 16 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <ProjectCard project={activeProject} variant="inspector" />
+      </motion.div>
+    </div>
   );
 }
 
@@ -360,6 +474,14 @@ export function Projects() {
     setActiveIndex(index);
   };
 
+  const selectProject = (index: number) => {
+    if (window.matchMedia("(min-width: 64rem)").matches) {
+      setActiveIndex(index);
+      return;
+    }
+    scrollToProject(index);
+  };
+
   const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (event.pointerType !== "touch") return;
 
@@ -421,57 +543,64 @@ export function Projects() {
       <div data-cursor-rail>
         <ProjectHeading
           activeIndex={activeIndex}
-          onPrevious={() => scrollToProject(activeIndex - 1)}
-          onNext={() => scrollToProject(activeIndex + 1)}
+          onPrevious={() => selectProject(activeIndex - 1)}
+          onNext={() => selectProject(activeIndex + 1)}
         />
-        <div className="project-list-shell relative border-t border-border py-8">
-          <span aria-hidden className="absolute inset-x-0 top-8 border-t border-border" />
-          <div
-            id="project-gallery"
-            ref={viewportRef}
-            className="project-native-scroll overflow-x-auto overscroll-x-contain"
-            role="region"
-            aria-label="Project gallery"
-            data-project-axis-lock="horizontal"
-            data-project-wheel="horizontal"
-            tabIndex={0}
-            onScroll={updateNativeIndex}
-            onPointerDown={handlePointerDown}
-            onPointerMove={handlePointerMove}
-            onPointerUp={finishPointerGesture}
-            onPointerCancel={finishPointerGesture}
-          >
-            <div ref={rowRef} className="flex w-max gap-[4vw] px-[7vw] md:px-[12vw]">
-              {carriages}
+        <div className="project-list-shell relative border-t border-border py-8 lg:py-0">
+          <div className="lg:hidden" data-project-mobile>
+            <span aria-hidden className="absolute inset-x-0 top-8 border-t border-border" />
+            <div
+              id="project-gallery"
+              ref={viewportRef}
+              className="project-native-scroll overflow-x-auto overscroll-x-contain"
+              role="region"
+              aria-label="Project gallery"
+              data-project-axis-lock="horizontal"
+              data-project-wheel="horizontal"
+              tabIndex={0}
+              onScroll={updateNativeIndex}
+              onPointerDown={handlePointerDown}
+              onPointerMove={handlePointerMove}
+              onPointerUp={finishPointerGesture}
+              onPointerCancel={finishPointerGesture}
+            >
+              <div ref={rowRef} className="flex w-max gap-[4vw] px-[7vw] md:px-[12vw]">
+                {carriages}
+              </div>
+            </div>
+            <div
+              className="mt-5 flex justify-center"
+              role="group"
+              aria-label="Choose a project"
+              data-project-dots
+            >
+              {PROJECTS.map((project, index) => (
+                <button
+                  key={project.name}
+                  type="button"
+                  className="group/dot grid size-8 place-items-center"
+                  aria-label={`Show project ${index + 1}: ${project.name}`}
+                  aria-current={activeIndex === index ? "true" : undefined}
+                  aria-controls="project-gallery"
+                  onClick={() => scrollToProject(index)}
+                >
+                  <span
+                    aria-hidden
+                    className={`size-2 rounded-full border transition-[border-color,background-color,transform] group-hover/dot:border-accent ${
+                      activeIndex === index
+                        ? "scale-125 border-accent bg-accent"
+                        : "border-border-hi bg-transparent"
+                    }`}
+                  />
+                </button>
+              ))}
             </div>
           </div>
-          <div
-            className="mt-5 flex justify-center"
-            role="group"
-            aria-label="Choose a project"
-            data-project-dots
-          >
-            {PROJECTS.map((project, index) => (
-              <button
-                key={project.name}
-                type="button"
-                className="group/dot grid size-8 place-items-center"
-                aria-label={`Show project ${index + 1}: ${project.name}`}
-                aria-current={activeIndex === index ? "true" : undefined}
-                aria-controls="project-gallery"
-                onClick={() => scrollToProject(index)}
-              >
-                <span
-                  aria-hidden
-                  className={`size-2 rounded-full border transition-[border-color,background-color,transform] group-hover/dot:border-accent ${
-                    activeIndex === index
-                      ? "scale-125 border-accent bg-accent"
-                      : "border-border-hi bg-transparent"
-                  }`}
-                />
-              </button>
-            ))}
-          </div>
+          <DesktopProjectInspector
+            activeIndex={activeIndex}
+            onSelect={setActiveIndex}
+            prefersReduced={prefersReduced}
+          />
         </div>
       </div>
     </Section>
