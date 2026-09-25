@@ -7,6 +7,8 @@ export interface Project {
   /** Describes the image itself, not the project. */
   alt: string;
   stack: string[];
+  /** The single strongest proof point, kept visible in compact project cards. */
+  proof?: string;
   href?: string;
   accessLabel?: string;
   attribution?: string;
@@ -26,19 +28,20 @@ export const PROJECTS: Project[] = [
       "Mobile-friendly dashboard combining measured river discharge, nearby weather, and a transparent experimental conditions score.",
     image: "/assets/projects/riverwise.png",
     alt: "Riverwise dashboard showing Nova Scotia river conditions and a measured discharge chart",
-    stack: ["Next.js", "TypeScript", "FastAPI", "PostgreSQL", "Python"],
+    stack: ["Next.js", "TypeScript", "FastAPI", "PostgreSQL", "Python", "Docker"],
+    proof: "68 backend tests · 5 Playwright E2E tests · GitHub Actions CI",
     attribution:
       "Independent project · Built the ingestion pipeline, API, scoring system, and responsive dashboard end to end.",
     details: [
       {
         label: "Data pipeline",
         value:
-          "Separates hourly Water Survey of Canada and Open-Meteo ingestion from web requests, preserving source timestamps and visible data gaps in PostgreSQL.",
+          "Separates hourly Water Survey of Canada and Open-Meteo ingestion from web requests, with retries, idempotent writes, and revision-aware upserts in PostgreSQL.",
       },
       {
-        label: "Coverage",
+        label: "Verification",
         value:
-          "Tracks six verified Nova Scotia gauges with seven- and 30-day score history, reliability reporting, and responsive station views.",
+          "Validated by 68 backend tests, 5 Playwright end-to-end tests, and GitHub Actions CI before deployment.",
       },
     ],
     sourceCodeHref: "https://github.com/JadenAntM/Riverwise",
@@ -52,6 +55,7 @@ export const PROJECTS: Project[] = [
     image: "/assets/projects/pocketspotter.png",
     alt: "PocketSpotter AI fitness form coaching dashboard",
     stack: ["Python", "OpenCV", "MediaPipe", "Flask"],
+    proof: "98% rep-counting accuracy · Sub-50ms processing latency",
     href: "https://github.com/kyle174/PocketSpotter",
     attribution:
       "Team of four · DeltaHacks XI hackathon · Owned pose-processing pipeline, Flask integration, and workout logging.",
@@ -81,6 +85,7 @@ export const PROJECTS: Project[] = [
       "Document Intelligence",
       "Workflow Automation",
     ],
+    proof: "1st in use case · 3rd overall of 22 teams",
     accessLabel: "RBC INTERNAL · NO PUBLIC LINK",
     attribution:
       "Team of six RBC co-op students · TechPowHer Hackathon · 1st in our use case · 3rd overall of 22 teams.",
@@ -109,6 +114,7 @@ export const PROJECTS: Project[] = [
     image: "/assets/projects/fish-species-classifier.png",
     alt: "Smallmouth bass used as an input image for the fish species classifier",
     stack: ["Python", "TensorFlow", "Keras"],
+    proof: "95% classification accuracy · Grad-CAM explanations",
     href: "https://github.com/JadenAntM/Fish-Species-Classifier",
   },
 ];

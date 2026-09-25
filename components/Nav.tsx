@@ -101,7 +101,7 @@ function HorizontalNav({
                 href={`#${section.id}`}
                 aria-current={isActive ? "true" : undefined}
                 className={cn(
-                  "mono flex h-full items-center justify-center gap-2 text-label uppercase transition-[color] duration-150",
+                  "mono flex h-full items-center justify-center gap-1 text-label uppercase transition-[color] duration-150 sm:gap-2",
                   isActive ? "text-fg" : "text-fg-tertiary",
                 )}
               >

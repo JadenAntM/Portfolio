@@ -7,7 +7,7 @@ export interface SectionMeta {
   label: string;
   /** Abbreviated form for the narrow left rail. */
   railLabel: string;
-  /** Short form used only when five links share the phone-width bottom bar. */
+  /** Short form used when all section links share the phone-width bottom bar. */
   compactLabel?: string;
 }
 
@@ -28,7 +28,20 @@ export const SECTIONS: SectionMeta[] = [
     railLabel: "EDUCATION",
     compactLabel: "EDU",
   },
-  { id: "contact", index: "04", label: "Contact", railLabel: "CONTACT" },
+  {
+    id: "outside-work",
+    index: "04",
+    label: "Outside Work",
+    railLabel: "OUTSIDE",
+    compactLabel: "LIFE",
+  },
+  {
+    id: "contact",
+    index: "05",
+    label: "Contact",
+    railLabel: "CONTACT",
+    compactLabel: "MAIL",
+  },
 ];
 
 export const NAV_SECTIONS = SECTIONS.filter(

@@ -392,6 +392,47 @@ check(
   `${scrollEnhancements.masks} masks, revealed=${scrollEnhancements.masksRevealed}`,
 );
 
+/* -- 2f. Every full page section participates in navigation -------------- */
+await page.goto(url, { waitUntil: "networkidle0" });
+const sectionNavigation = await page.evaluate(() => ({
+  sections: [...document.querySelectorAll("main > section")].map((section) => section.id),
+  hrefs: [
+    ...new Set(
+      [...document.querySelectorAll('nav[aria-label="Sections"] a')].map((link) =>
+        link.getAttribute("href"),
+      ),
+    ),
+  ],
+  total: document.querySelector("[data-scroll-readout]")?.textContent
+    ?.replace(/\s+/g, " ")
+    .trim(),
+  outsideMarker: document.querySelector("#outside-work .track-main > p")?.textContent?.trim(),
+  contactMarker: document.querySelector("#contact .track-main > p")?.textContent?.trim(),
+}));
+
+await page.evaluate(() => {
+  document.getElementById("outside-work")?.scrollIntoView({ behavior: "instant" });
+});
+await new Promise((resolve) => setTimeout(resolve, 500));
+const outsideActive = await page.evaluate(() =>
+  [...document.querySelectorAll('nav a[aria-current="true"]')].every(
+    (link) => link.getAttribute("href") === "#outside-work",
+  ),
+);
+
+check(
+  "navigation: all six sections are numbered, counted, and tracked",
+  sectionNavigation.sections.length === 6 &&
+    sectionNavigation.sections.includes("outside-work") &&
+    sectionNavigation.hrefs.length === 6 &&
+    sectionNavigation.hrefs.includes("#outside-work") &&
+    sectionNavigation.total?.includes("01/06") &&
+    sectionNavigation.outsideMarker === "04" &&
+    sectionNavigation.contactMarker === "05" &&
+    outsideActive,
+  JSON.stringify({ ...sectionNavigation, outsideActive }),
+);
+
 /* -- 3a. Mobile Projects is native horizontal scroll snap ---------------- */
 {
   const mobilePage = await browser.newPage();
@@ -416,6 +457,15 @@ check(
           getComputedStyle(node).display !== "none",
       ),
       labelled: list?.getAttribute("aria-label") === "Project gallery",
+      details: document.querySelectorAll(
+        "#projects [data-project-carriage] [data-project-details]",
+      ).length,
+      firstDetailsOpen: document.querySelector(
+        '#projects [data-project-carriage="0"] [data-project-details]',
+      )?.open,
+      riverwiseProof: document
+        .querySelector('#projects [data-project-carriage="0"]')
+        ?.textContent?.includes("68 backend tests"),
       experienceCards,
       experiencePins: document.querySelectorAll("#experience .stage-pin").length,
     };
@@ -432,9 +482,32 @@ check(
       mobileProjects.controls === 2 &&
       mobileProjects.cue &&
       mobileProjects.labelled &&
+      mobileProjects.details === 3 &&
+      mobileProjects.firstDetailsOpen === false &&
+      mobileProjects.riverwiseProof &&
       mobileProjects.experienceCards.length === 2 &&
       mobileProjects.experiencePins === 0,
     JSON.stringify(mobileProjects),
+  );
+
+  await mobilePage.click(
+    '#projects [data-project-carriage="0"] [data-project-details] summary',
+  );
+  const expandedDetails = await mobilePage.evaluate(() => {
+    const details = document.querySelector(
+      '#projects [data-project-carriage="0"] [data-project-details]',
+    );
+    return {
+      open: details?.open,
+      text: details?.textContent?.replace(/\s+/g, " ").trim(),
+    };
+  });
+  check(
+    "projects: mobile technical details expand on demand",
+    expandedDetails.open === true &&
+      expandedDetails.text?.includes("idempotent writes") &&
+      expandedDetails.text?.includes("68 backend tests"),
+    JSON.stringify(expandedDetails),
   );
   await mobilePage.close();
 }

@@ -1,22 +1,26 @@
 import { HeadingReveal } from "@/components/HeadingReveal";
-import { GridRow, Section, headingId } from "@/components/Section";
+import {
+  GridRow,
+  Section,
+  SectionMarker,
+  headingId,
+} from "@/components/Section";
 import { SpecBlock } from "@/components/SpecBlock";
 import { OUTSIDE_WORK } from "@/data/outsideWork";
+import { SECTIONS } from "@/data/sections";
 
-const sectionId = "outside-work";
+const meta = SECTIONS.find((section) => section.id === "outside-work")!;
 
 /** A compact personal note that keeps the portfolio's primary story technical. */
 export function OutsideWork() {
   return (
-    <Section id={sectionId}>
+    <Section id={meta.id}>
       <GridRow
         mainClassName="py-16 sm:py-20 lg:py-24"
         main={
           <>
-            <p className="mono mb-6 text-label uppercase text-fg-tertiary">
-              Outside_work
-            </p>
-            <HeadingReveal id={headingId(sectionId)}>Outside Work</HeadingReveal>
+            <SectionMarker index={meta.index!} />
+            <HeadingReveal id={headingId(meta.id)}>{meta.label}</HeadingReveal>
 
             <ul className="mt-10 max-w-(--measure-body) border-b border-border">
               {OUTSIDE_WORK.map((interest) => (

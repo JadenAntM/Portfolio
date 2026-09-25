@@ -22,7 +22,7 @@ export function ScrollReadout() {
   const percent = (progress * 100).toFixed(1).padStart(4, "0");
 
   return (
-    <dl aria-hidden className="mono text-mono-sm">
+    <dl aria-hidden className="mono text-mono-sm" data-scroll-readout>
       <div className="flex justify-between gap-4">
         <dt className="text-fg-tertiary">SECTION</dt>
         <dd className="text-fg">

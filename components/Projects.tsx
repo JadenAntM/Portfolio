@@ -28,6 +28,33 @@ function pad(value: number) {
   return String(value).padStart(2, "0");
 }
 
+function ProjectDeepDetails({ project }: { project: Project }) {
+  return (
+    <>
+      {project.attribution ? (
+        <p className="mono mt-4 border-l border-accent pl-3 text-micro leading-relaxed text-fg-secondary">
+          {project.attribution}
+        </p>
+      ) : null}
+
+      {project.details ? (
+        <dl className="mt-4 space-y-3 border-t border-border pt-4">
+          {project.details.map((detail) => (
+            <div key={detail.label}>
+              <dt className="mono text-micro uppercase text-fg-tertiary">
+                {detail.label}
+              </dt>
+              <dd className="mt-1 text-sm leading-relaxed text-fg-secondary">
+                {detail.value}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      ) : null}
+    </>
+  );
+}
+
 function ProjectCard({
   project,
   linkTabIndex,
@@ -37,6 +64,8 @@ function ProjectCard({
   linkTabIndex?: number;
   variant?: "carousel" | "inspector";
 }) {
+  const hasDeepDetails = Boolean(project.attribution || project.details?.length);
+
   return (
     <article
       className={`project-card group grid overflow-hidden rounded-sm border border-border bg-bg transition-colors hover:border-accent focus-within:border-accent ${variant === "inspector" ? "project-card-inspector" : ""} ${project.details ? "project-card-detailed" : ""}`}
@@ -74,25 +103,15 @@ function ProjectCard({
         </div>
         <p className="mt-3 text-body text-fg-secondary">{project.description}</p>
 
-        {project.attribution ? (
-          <p className="mono mt-4 border-l border-accent pl-3 text-micro leading-relaxed text-fg-secondary">
-            {project.attribution}
-          </p>
+        {project.proof ? (
+          <div className="mt-5 border-l-2 border-accent bg-surface px-3 py-3">
+            <p className="mono text-micro uppercase text-fg-tertiary">Proof</p>
+            <p className="mono mt-2 text-mono-sm text-fg">{project.proof}</p>
+          </div>
         ) : null}
 
-        {project.details ? (
-          <dl className="mt-4 space-y-3 border-t border-border pt-4">
-            {project.details.map((detail) => (
-              <div key={detail.label}>
-                <dt className="mono text-micro uppercase text-fg-tertiary">
-                  {detail.label}
-                </dt>
-                <dd className="mt-1 text-sm leading-relaxed text-fg-secondary">
-                  {detail.value}
-                </dd>
-              </div>
-            ))}
-          </dl>
+        {variant === "inspector" && hasDeepDetails ? (
+          <ProjectDeepDetails project={project} />
         ) : null}
 
         <div className="mt-6 border-t border-border pt-5">
@@ -109,7 +128,7 @@ function ProjectCard({
           </ul>
         </div>
 
-        <div className="mt-auto flex flex-wrap gap-x-6 gap-y-3 pt-6">
+        <div className="flex flex-wrap gap-x-6 gap-y-3 pt-6">
           {project.liveDemoHref ? (
             <ArrowLink href={project.liveDemoHref} external tabIndex={linkTabIndex}>
               Live demo
@@ -129,6 +148,24 @@ function ProjectCard({
             </p>
           ) : null}
         </div>
+
+        {variant === "carousel" && hasDeepDetails ? (
+          <details
+            className="group/details mt-5 border-t border-border pt-4"
+            data-project-details
+          >
+            <summary className="mono flex cursor-pointer list-none items-center justify-between gap-4 text-label uppercase text-fg-secondary transition-colors hover:text-accent [&::-webkit-details-marker]:hidden">
+              <span>Technical details</span>
+              <span aria-hidden className="text-accent">
+                <span className="group-open/details:hidden">+</span>
+                <span className="hidden group-open/details:inline">−</span>
+              </span>
+            </summary>
+            <div className="pb-1">
+              <ProjectDeepDetails project={project} />
+            </div>
+          </details>
+        ) : null}
       </div>
     </article>
   );
