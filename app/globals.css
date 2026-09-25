@@ -566,8 +566,7 @@
   }
 
   .custom-cursor__crosshair,
-  .custom-cursor__arrow,
-  .custom-cursor__rail {
+  .custom-cursor__arrow {
     grid-area: 1 / 1;
     place-self: center;
     transition: opacity 80ms linear, transform 100ms ease-out;
@@ -608,18 +607,7 @@
     transform: scale(0.7) translateX(-2px);
   }
 
-  .custom-cursor__rail {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.75rem;
-    line-height: 1;
-    opacity: 0;
-    transform: scaleX(0.7);
-  }
-
-  .custom-cursor[data-mode="link"] .custom-cursor__crosshair,
-  .custom-cursor[data-mode="rail"] .custom-cursor__crosshair {
+  .custom-cursor[data-mode="link"] .custom-cursor__crosshair {
     opacity: 0;
     transform: scale(0.7);
   }
@@ -627,10 +615,5 @@
   .custom-cursor[data-mode="link"] .custom-cursor__arrow {
     opacity: 1;
     transform: scale(1) translateX(0);
-  }
-
-  .custom-cursor[data-mode="rail"] .custom-cursor__rail {
-    opacity: 1;
-    transform: scaleX(1);
   }
 }

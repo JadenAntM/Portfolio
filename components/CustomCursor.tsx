@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-type CursorMode = "default" | "link" | "rail";
+type CursorMode = "default" | "link";
 
 const FINE_POINTER_QUERY = "(hover: hover) and (pointer: fine)";
 const INTERACTIVE_SELECTOR = [
@@ -18,7 +18,6 @@ const INTERACTIVE_SELECTOR = [
 function cursorModeAt(target: EventTarget | null): CursorMode {
   if (!(target instanceof Element)) return "default";
   if (target.closest(INTERACTIVE_SELECTOR)) return "link";
-  if (target.closest("[data-project-rail], [data-cursor-rail]")) return "rail";
   return "default";
 }
 
@@ -137,10 +136,6 @@ export function CustomCursor() {
       <span className="custom-cursor__visual">
         <span className="custom-cursor__crosshair" />
         <span className="custom-cursor__arrow mono">→</span>
-        <span className="custom-cursor__rail mono">
-          <span>←</span>
-          <span>→</span>
-        </span>
       </span>
     </div>
   );

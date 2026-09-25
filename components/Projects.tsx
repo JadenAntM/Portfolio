@@ -540,7 +540,7 @@ export function Projects() {
 
   return (
     <Section id={meta.id}>
-      <div data-cursor-rail>
+      <div>
         <ProjectHeading
           activeIndex={activeIndex}
           onPrevious={() => selectProject(activeIndex - 1)}
