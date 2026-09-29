@@ -22,7 +22,7 @@ export const PROFILE = {
 
   positioning: [
     "Backend and data engineer building internal tools that remove operational work.",
-    "Previously at RBC Capital Markets and TFI International, where I cut investigation time 92% and automated 18+ hours of weekly work.",
+    "Previously at RBC Capital Markets and TFI International.",
   ],
 
   /** Resume skills, split across rows 2 and 3 by the Hero. */
