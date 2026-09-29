@@ -65,6 +65,18 @@ function ProjectCard({
   variant?: "carousel" | "inspector";
 }) {
   const hasDeepDetails = Boolean(project.attribution || project.details?.length);
+  const imageHref = project.liveDemoHref ?? project.sourceCodeHref ?? project.href;
+  const imageDestination = project.liveDemoHref ? "live demo" : "repository";
+  const image = project.image ? (
+    <Image
+      src={project.image}
+      alt={project.alt}
+      fill
+      priority={PROJECTS.indexOf(project) === 0}
+      sizes="(min-width: 48rem) 40vw, 86vw"
+      className="project-card-image object-contain"
+    />
+  ) : null;
 
   return (
     <article
@@ -77,17 +89,21 @@ function ProjectCard({
             : "border-b md:border-r md:border-b-0"
         }`}
       >
-        {project.image ? (
-          <Image
-            src={project.image}
-            alt={project.alt}
-            fill
-            priority={PROJECTS.indexOf(project) === 0}
-            sizes="(min-width: 48rem) 40vw, 86vw"
-            className="project-card-image object-contain"
-          />
-        ) : null}
-        <span className="mono absolute top-3 left-3 border border-border bg-bg px-2 py-1 text-micro text-fg-tertiary">
+        {imageHref && image ? (
+          <a
+            href={imageHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            tabIndex={linkTabIndex}
+            aria-label={`Open ${project.name} ${imageDestination} in a new tab`}
+            className="absolute inset-0 block cursor-pointer focus-visible:outline-offset-[-3px]"
+          >
+            {image}
+          </a>
+        ) : (
+          image
+        )}
+        <span className="mono pointer-events-none absolute top-3 left-3 border border-border bg-bg px-2 py-1 text-micro text-fg-tertiary">
           PROJECT_{pad(PROJECTS.indexOf(project) + 1)}
         </span>
       </div>
